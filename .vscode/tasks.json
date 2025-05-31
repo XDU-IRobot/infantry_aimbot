@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "cmake -B ${workspaceFolder}/build -S ${workspaceFolder} && cmake --build ${workspaceFolder}/build --target all -- -j 12",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/bash",
+          "args": ["-c"]
+        }
+      },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "rm -r ${workspaceFolder}/build",
+      "group": {
+        "kind": "none",
+        "isDefault": true
+      },
+      "options": {
+        "shell": {
+          "executable": "/bin/bash",
+          "args": ["-c"]
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}
