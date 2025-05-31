@@ -28,7 +28,7 @@ DahengCam::DahengCam(const std::string camera_sn) : camera_sn_(camera_sn), devic
 
 DahengCam::~DahengCam() {
   if (is_open_) {
-    bool if_delete = this->close();
+    this->close();
   }
 }
 
@@ -51,7 +51,7 @@ bool DahengCam::open() {
   GX_STATUS status;
   status = GXStreamOn(device_);
   if (status != GX_STATUS_SUCCESS) {
-    bool if_close = this->close();
+    this->close();
     this->error_message_ = "DahengCam open failed ";
     return false;
   }
@@ -246,7 +246,7 @@ bool DahengCam::SettingsInit() {
   return true;
 }
 
-void DahengCam::SetExposure(int exposure) {
+bool DahengCam::SetExposure(int exposure) {
   // status_ = GXStreamOff(device_);
   // status_ = GXCloseDevice(device_);
   // status_ = init_sdk();
@@ -261,5 +261,6 @@ void DahengCam::SetExposure(int exposure) {
   status = GXSetFloat(device_, GX_FLOAT_EXPOSURE_TIME, params_[CamParamType::Exposure]);
 
   // status_ = GXStreamOn(device_);
+  return status == GX_STATUS_SUCCESS;
 }
 }  // namespace camera

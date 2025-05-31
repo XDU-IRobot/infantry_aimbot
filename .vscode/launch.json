@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C++ Debug",
+      "name": "Debug",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build/infantry_aimbot", //${workspaceFolder}是路径除执行文件外其他
+      "program": "${workspaceFolder}/build/infantry_aimbot",
       "args": [],
       "stopAtEntry": true,
       "cwd": "${workspaceFolder}",

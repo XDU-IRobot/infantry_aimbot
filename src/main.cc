@@ -1,21 +1,14 @@
 
-#include "daheng_cam/daheng.hpp"
 
-camera::DahengCam cam;
+#include "backward.hpp"
+#include "daheng_cam/daheng.hpp"
+#include "param_manager.hpp"
+
+backward::SignalHandling _;                   ///< 用来在程序崩掉时打印堆栈信息
+ParamManager &pm = ParamManager::instance();  ///< 参数配置管理器
 
 int main() {
-  cv::Mat img;
-  if (!cam.open()) {
-    std::cout << cam.error_message() << std::endl;
-    return -1;
-  }
-  for (int i = 0; i < 3000; i++) {
-    if (!cam.grab_image(img)) {
-      std::cout << cam.error_message() << std::endl;
-      return -1;
-    }
-    cv::imshow("DahengCam", img);
-    cv::waitKey(1);
-  }
+  pm.SetConfigPath(CONFIG_DIR);
+  pm.Update();
   return 0;
 }

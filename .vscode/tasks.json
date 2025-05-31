@@ -4,7 +4,7 @@
     {
       "label": "build",
       "type": "shell",
-      "command": "cmake -B ${workspaceFolder}/build -S ${workspaceFolder} && cmake --build ${workspaceFolder}/build --target all -- -j 12",
+      "command": "cmake -B ${workspaceFolder}/build -S ${workspaceFolder} --preset Debug;cmake --build ${workspaceFolder}/build --target infantry_aimbot",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -17,22 +17,6 @@
         }
       },
       "problemMatcher": "$gcc"
-    },
-    {
-      "label": "clean",
-      "type": "shell",
-      "command": "rm -r ${workspaceFolder}/build",
-      "group": {
-        "kind": "none",
-        "isDefault": true
-      },
-      "options": {
-        "shell": {
-          "executable": "/bin/bash",
-          "args": ["-c"]
-        }
-      },
-      "problemMatcher": []
     }
   ]
 }

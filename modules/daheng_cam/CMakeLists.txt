@@ -7,9 +7,11 @@ target_include_directories(daheng_cam PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 find_package(OpenCV REQUIRED)
 
 target_link_libraries(daheng_cam PRIVATE
-    gxiapi
+  param_manager
+  third_party_modules
+  gxiapi
 )
 
 target_link_libraries(daheng_cam PUBLIC
-    ${OpenCV_LIBS}
+  ${OpenCV_LIBS}
 )

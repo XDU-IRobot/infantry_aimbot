@@ -1,0 +1,12 @@
+
+auto_exposure = false
+exposure = 1000
+gamma = 9
+
+auto_white_balance = false
+r_gain = 19
+g_gain = 10
+b_gain = 19
+
+height = 720
+width = 1280

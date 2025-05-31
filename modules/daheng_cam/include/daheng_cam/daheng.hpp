@@ -45,15 +45,15 @@ class DahengCam : public CamInterface {
   bool ResetParameters(const std::map<CamParamType, int> &param_map);
 
   // 改变曝光参数
-  void SetExposure(int exp);
+  bool SetExposure(int exp);
 
  private:
   bool is_open_;
+  std::string camera_sn_;          // 相机sn号
   GX_DEV_HANDLE device_;           // 设备权柄
   PGX_FRAME_BUFFER pFrameBuffer_;  // raw 图像的buffer
   uint8_t *rgbImagebuf_;           // rgb 图像的buffer
   std::string error_message_;      // 错误消息，对外传输
-  std::string camera_sn_;          // 相机sn号
 
  public:
   std::unordered_map<CamParamType, int> params_;

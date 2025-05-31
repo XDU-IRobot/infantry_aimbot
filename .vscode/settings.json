@@ -2,19 +2,6 @@
   "C_Cpp.intelliSenseEngine": "disabled",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
-  "VsCodeTaskButtons.showCounter": false,
-  "VsCodeTaskButtons.tasks": [
-    {
-      "label": "$(notebook-move-down)",
-      "task": "build",
-      "tooltip": "🛠️ Build"
-    },
-    {
-      "label": "$(notebook-delete-cell)",
-      "task": "clean",
-      "tooltip": "🧹 Clean"
-    }
-  ],
   "terminal.integrated.profiles.linux": {
     "bash": {
       "path": "bash",

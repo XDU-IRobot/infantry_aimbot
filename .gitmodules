@@ -1,0 +1,6 @@
+[submodule "modules/third_party/backward-cpp"]
+	path = modules/third_party/backward-cpp
+	url = https://github.com/bombela/backward-cpp.git
+[submodule "modules/third_party/toml11"]
+	path = modules/third_party/toml11
+	url = https://github.com/ToruNiina/toml11.git
