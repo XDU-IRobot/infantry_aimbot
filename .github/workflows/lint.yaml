@@ -11,10 +11,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          submodules: 'recursive'
       - uses: DoozyX/clang-format-lint-action@v0.18.1
         with:
-          source: "./src"
+          source: "src modules"
           inplace: True
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
