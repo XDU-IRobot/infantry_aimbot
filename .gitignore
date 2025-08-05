@@ -1,8 +1,9 @@
 # Prerequisites
 *.d
 
-build/
-install/
+build
+install
+log
 
 # Compiled Object files
 *.slo

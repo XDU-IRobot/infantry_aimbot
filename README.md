@@ -3,12 +3,12 @@
 # BUILD
 
 ```shell
-cmake -B build --preset [Debug|Release|RelWithDebInfo|MinSizeRel]
-cmake --build build
+colcon build --merge-install --symlink-install
 ```
 
 # RUN
 
 ```shell
-./build/infantry_aimbot
+source install/setup.bash
+ros2 launch infantry_aimbot ia.launch.py
 ```

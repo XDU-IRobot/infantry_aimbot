@@ -1,0 +1,36 @@
+name: build_eol
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ros_distro: foxy
+            docker_image: osrf/ros:foxy-desktop
+          - ros_distro: galactic
+            docker_image: osrf/ros:galactic-desktop
+
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.docker_image }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install dependencies
+        shell: bash
+        run: |
+          apt update
+          apt install -y libboost-all-dev libeigen3-dev libopencv-dev libomp-dev
+      - name: Build
+        shell: bash
+        run: |
+          source /opt/ros/${{ matrix.ros_distro }}/setup.sh
+          python3 scripts/build.py --debug
