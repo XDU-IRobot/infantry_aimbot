@@ -13,7 +13,7 @@ jobs:
           ref: ${{ github.head_ref }}
       - uses: DoozyX/clang-format-lint-action@v0.18.1
         with:
-          source: "src modules"
+          source: "src/infantry_aimbot/src src/infantry_aimbot/include"
           inplace: True
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
