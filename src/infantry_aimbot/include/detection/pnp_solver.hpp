@@ -3,7 +3,7 @@
 
 // std
 // ros
-#include <geometry_msgs/msg/transform.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 
 // third-party
 #include <Eigen/Dense>
@@ -13,14 +13,15 @@
 #include "typedefs.hpp"
 
 namespace ia {
-namespace detector {
+namespace detection {
 
 class PnpSolver {
  public:
   PnpSolver() = delete;
-  PnpSolver(float armor_width, float armor_height, cv::Mat camera_matrix, cv::Mat dist_coeffs);
+  PnpSolver(std::vector<cv::Point3f> object_points,  ///< 左上，右上，右下，左下
+            cv::Mat camera_matrix, cv::Mat dist_coeffs);
 
-  result_sp<geometry_msgs::msg::Transform> SolvePose(const std::vector<cv::Point2f> &image_points);
+  result_sp<geometry_msgs::msg::Pose> SolvePose(const std::vector<cv::Point2f> &image_points);
 
  private:
   const std::vector<cv::Point3f> object_points_;
@@ -36,7 +37,7 @@ class PnpSolver {
     Eigen::Vector3d tvec_ros;
   } intermidiate_buffer_;
 
-  sp<geometry_msgs::msg::Transform> ret_buffer_{std::make_shared<geometry_msgs::msg::Transform>()};
+  sp<geometry_msgs::msg::Pose> ret_buffer_{std::make_shared<geometry_msgs::msg::Pose>()};
 };
 
 }  // namespace detector

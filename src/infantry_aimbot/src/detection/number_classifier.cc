@@ -1,8 +1,8 @@
 
-#include "detector/number_classifier.hpp"
+#include "detection/number_classifier.hpp"
 
 namespace ia {
-namespace detector {
+namespace detection {
 result_sp<NumberClassifier::ClassifyResult> NumberClassifier::Classify(const cv::Mat &img,
                                                                        const std::vector<cv::Point2f> &light_points) {
   const int top_light_y = (kWarpHeight - kLightLength) / 2 - 1;
@@ -15,10 +15,12 @@ result_sp<NumberClassifier::ClassifyResult> NumberClassifier::Classify(const cv:
       cv::Point(warp_width - 1, bottom_light_y),
   };
   const auto rotation_matrix = cv::getPerspectiveTransform(light_points.data(), target_vertices);
-  cv::warpPerspective(img, img, rotation_matrix, cv::Size(warp_width, kWarpHeight));
+
+  static cv::Mat warped;
+  cv::warpPerspective(img, warped, rotation_matrix, cv::Size(warp_width, kWarpHeight));
 
   // Get ROI
-  roi_img_ = img(cv::Rect(cv::Point((warp_width - kROISize.width) / 2, 0), kROISize));
+  roi_img_ = warped(cv::Rect(cv::Point((warp_width - kROISize.width) / 2, 0), kROISize));
 
   // Binarize
   cv::cvtColor(roi_img_, roi_img_, cv::COLOR_RGB2GRAY);
@@ -46,5 +48,5 @@ result_sp<NumberClassifier::ClassifyResult> NumberClassifier::Classify(const cv:
 
   return ret_buffer_;
 }
-}  // namespace detector
+}  // namespace detection
 }  // namespace ia

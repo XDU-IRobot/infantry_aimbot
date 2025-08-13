@@ -15,7 +15,7 @@
 #include "ros/node.hpp"
 #include "ros/params_manager.hpp"
 #include "ros/publisher_pool.hpp"
-#include "detector/traditional_detector.hpp"
+#include "detection/pipeline.hpp"
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
@@ -32,15 +32,10 @@ int main(int argc, char **argv) {
     logger.set_level(rclcpp::Logger::Level::Info);
   }
 
-  ia::detector::TraditionalDetector det{
-      {params.bin_threshold, params.enemy_color},
-      {params.angle_to_vertigal_max, params.height_width_min_ratio, params.size_area_min_ratio,
-       params.is_corner_correct},
-      {params.lights_angle_max_diff, params.lights_length_max_ratio, params.lights_y_max_ratio,
-       params.width_height_min_ratio, params.width_height_max_ratio, params.max_angle, params.inside_thresh}};
+  ia::detection::DetectionPipeline detection_pipeline{params};
 
   const auto package_path = ament_index_cpp::get_package_share_directory("infantry_aimbot");
-  cv::VideoCapture cap(package_path + "/assets/test1.mp4");
+  cv::VideoCapture cap(package_path + "/assets/test3.mp4");
 
   cv_bridge::CvImage frame;
   frame.encoding = sensor_msgs::image_encodings::BGR8;
@@ -51,17 +46,16 @@ int main(int argc, char **argv) {
     }
 
     const auto start_time = std::chrono::high_resolution_clock::now();
-    auto armors = det.DetectArmors(frame.image);
+    const auto armors = detection_pipeline.ProcessImage(frame.image);
     RCLCPP_DEBUG(
         ros_node->get_logger(), "Detection took %ld us",
         std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_time)
             .count());
 
-    if (armors) {
-      ia::detector::TraditionalDetector::DrawResult(frame.image, *armors.value());
+    if (armors && params.debug) {
+      ia::detection::TraditionalDetector::DrawResult(frame.image, *armors.value());
+      image_publisher_pool.Publish("debug_image", frame.toCompressedImageMsg());
     }
-
-    image_publisher_pool.Publish("debug_image", frame.toCompressedImageMsg());
   }
   rclcpp::shutdown();
   return 0;

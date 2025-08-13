@@ -1,11 +1,15 @@
 
 #pragma once
 
+#include <cv_bridge/cv_bridge.h>
+
+#include <tbb/tbb.h>
+
 #include "number_classifier.hpp"
 #include "typedefs.hpp"
 
 namespace ia {
-namespace detector {
+namespace detection {
 
 // 输入图像为BGR
 class TraditionalDetector {
@@ -48,19 +52,19 @@ class TraditionalDetector {
    * @brief 设置敌方颜色
    * @param[in] enemy_color 敌方颜色
    **/
-  void setEnemyColor(Color enemy_color);
+  void SetEnemyColor(Color enemy_color);
 
  private:
-  result_sp<std::vector<LightBlob>> FindLights(const cv::Mat &image);
+  result_sp<tbb::concurrent_vector<LightBlob>> FindLights(const cv::Mat &image);
   bool IsValidLight(const LightBlob &light);
-  result_sp<std::vector<Armor>> MatchLights(std::vector<LightBlob> &lights);
+  result_sp<std::vector<Armor>> MatchLights(tbb::concurrent_vector<LightBlob> &lights);
   /**
    * @brief 判断两个灯是否为装甲板
    * @param[in] light_1 灯1
    * @param[in] light_2 灯2
-   * @return 0: 不是装甲板; 1: 小装甲板; 2: 大装甲板
+   * @return 装甲板类型
    **/
-  Armor::Type IsValidArmor(const LightBlob &light_1, const LightBlob &light_2);
+  std::pair<bool, Armor::Type> IsValidArmor(const LightBlob &light_1, const LightBlob &light_2);
 
   /**
    * @brief 寻找最大亮度变化点
@@ -69,7 +73,7 @@ class TraditionalDetector {
    * @param[in] end 终止点
    * @return 最大亮度变化点
    **/
-  cv::Point findMaxBrightnessChange(const cv::Mat &image, cv::Point start, cv::Point end);
+  cv::Point FindMaxBrightnessChange(const cv::Mat &image, cv::Point start, cv::Point end);
 
   ProcessParams process_params_;
   LightParams light_params_;
@@ -78,7 +82,6 @@ class TraditionalDetector {
 
  public:
   cv::Mat src_;
-  cv::Mat debug_binary_;
 };
 }  // namespace detector
 }  // namespace ia

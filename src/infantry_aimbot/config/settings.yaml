@@ -1,12 +1,15 @@
 /**:
   ros__parameters:
+    debug: true
+
+    ### CAMERA SETTINGS
     width: 1920
     height: 1200
     exposure: 2100
     auto_exposure: false
     gain: 24
     fps: 168
-    auto_white_balace: true
+    auto_white_balance: true
     rgain: 0.0
     bgain: 0.0
     ggain: 0.0
@@ -15,20 +18,34 @@
     max_exp: 3000
     min_exp: 200
 
-    debug: true
+    ### CAMERA INFO
+    camera_matrix: # 3x3
+      [
+        1569.575079,
+        0.0,
+        655.825651,
+        0.0,
+        1569.978252,
+        532.056607,
+        0.0,
+        0.0,
+        1.0,
+      ]
+    distortion_coefficients: [-0.287683, 0.279922, -0.000278, 0.000319, 0.0] # 1x5
 
-    # image_process_params:
-    bin_threshold: 90.0
+    ### DETECTOR PARAMS
+    # image_process_params
+    bin_threshold: 200.0
     enemy_color: 1 # 1--blue 0--red
 
-    # light_params:
+    # light_params
     is_corner_correct: false
 
     angle_to_vertical_max: 35.0
     height_width_min_ratio: 1.3
     size_area_min_ratio: 0.4
 
-    # armor_params:
+    # armor_params
     lights_angle_max_diff: 10.0
     lights_length_max_ratio: 1.5
     lights_y_max_ratio: 1.5
@@ -36,3 +53,5 @@
     width_height_max_ratio: 6.5
     max_angle: 35.0
     inside_thresh: 85.0
+
+    number_classify_model_path: "assets/lenet.onnx"

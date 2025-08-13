@@ -6,7 +6,7 @@
 #include "typedefs.hpp"
 
 namespace ia {
-namespace detector {
+namespace detection {
 
 /**
  * @brief   数字分类器

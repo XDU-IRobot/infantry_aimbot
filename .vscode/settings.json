@@ -13,7 +13,7 @@
   "clangd.fallbackFlags": [],
   "clangd.arguments": [
     "--background-index",
-    "--compile-commands-dir=build",
+    "--compile-commands-dir=${workspaceFolder}/build",
     "-j=12",
     "--all-scopes-completion",
     "--completion-style=detailed",

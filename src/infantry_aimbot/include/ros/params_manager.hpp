@@ -68,9 +68,11 @@ class ParamsManager {
     RCLCPP_INFO(node_->get_logger(),
                 "================================================================================");
 
-    /** 启动参数服务器 **/
-    // param_cb_handle_ = node_->add_on_set_parameters_callback(
-    //     std::bind(&RosParamsManager::ParameterCallback, this, std::placeholders::_1));
+    // 启动参数服务器
+    param_cb_handle_ =
+        node_->add_on_set_parameters_callback([this](auto &&arg) -> rcl_interfaces::msg::SetParametersResult {
+          return ParameterCallback(std::forward<decltype(arg)>(arg));
+        });
   }
 
  private:

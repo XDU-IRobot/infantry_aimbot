@@ -1,13 +1,13 @@
 /**
  * @file  ros_node.hpp
- * @brief 一个rclcpp::Node单例
+ * @brief 一个rclcpp::Node单例，程序通过这个节点使用ROS2相关的功能
  */
 
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
 
-#include "ros/params_manager.hpp"
+#include "ros/publisher_pool.hpp"
 
 namespace ia {
 namespace ros {
@@ -20,6 +20,13 @@ class NodeSingleton {
   }
 
   rclcpp::Node::SharedPtr node() { return node_; }
+
+  // TODO: 不好用，推断不了类型，后面再改进
+  template <typename MessageType>
+  void Publish(const std::string &topic_name, typename MessageType::SharedPtr &&message) {
+    static PublisherPool<MessageType> ppool{node_};
+    ppool.Publish(topic_name, std::forward<decltype(message)>(message));
+  }
 
  private:
   NodeSingleton()

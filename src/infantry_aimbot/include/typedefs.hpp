@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <geometry_msgs/msg/detail/pose__struct.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+
 #include <opencv2/opencv.hpp>
 #include <outcome.hpp>
 
@@ -27,7 +30,7 @@ struct LightBlob {
   LightBlob(cv::RotatedRect box) {
     rrect = box;
     if (rrect.size.width > rrect.size.height) {
-      std::swap<float>(rrect.size.width, rrect.size.height);
+      std::swap(rrect.size.width, rrect.size.height);
     }
     cv::Point2f p[4];
     box.points(p);
@@ -58,19 +61,16 @@ struct LightBlob {
 
 struct Armor {
   enum Type {
-    WRONG = 0,
+    DEFAULT,
     SMALL,
     BIG,
-    RUNE_ARMOR,
     GRAY_BIG_ARMOR,
     GRAY_SMALL_ARMOR,
     DEAD_ARMOR,
   };
 
   Armor() = default;
-  Armor(const LightBlob &l1, const LightBlob &l2)
-      : points{left_light.down, left_light.up, right_light.up, right_light.down},
-        center_point{(left_light.rrect.center + right_light.rrect.center) / 2} {
+  Armor(const LightBlob &l1, const LightBlob &l2) : center{(left_light.rrect.center + right_light.rrect.center) / 2} {
     if (l1.rrect.center.x < l2.rrect.center.x) {
       left_light = l1, right_light = l2;
     } else {
@@ -84,8 +84,8 @@ struct Armor {
     const auto angle = std::atan2(right_light.rrect.center.y - left_light.rrect.center.y,
                                   right_light.rrect.center.x - left_light.rrect.center.x) *
                        180 / CV_PI;
-    this->rrect = cv::RotatedRect(center_point, cv::Size(width, height), angle);
-    this->rect = cv::Rect2d(center_point - cv::Point2d(width / 2.0, height / 2.0), cv::Size(width, height));
+    rrect = cv::RotatedRect(center, cv::Size(width, height), angle);
+    rect = cv::Rect2d(center - cv::Point2d(width / 2.0, height / 2.0), cv::Size(width, height));
   }
 
   cv::RotatedRect rrect;
@@ -95,20 +95,14 @@ struct Armor {
   LightBlob right_light;
 
   int num_id{10};
-  Type type{WRONG};
+  Type type;
   double distance_to_image_center;
   double distance;
 
-  cv::Point2d center_point;
+  cv::Point2d center;
 
   double confidence;
-  std::vector<cv::Point2d> points{4};
 
-  double yaw;
-  double pitch;
-  double roll;
-
-  cv::Point3f position;
-  cv::Point3d pyr;
+  geometry_msgs::msg::Pose pose;
 };
 }  // namespace ia
