@@ -14,7 +14,7 @@ class PublisherPool {
   using SharedPtr = std::shared_ptr<PublisherPool<MessageType>>;
 
   PublisherPool(rclcpp::Node::SharedPtr node, rclcpp::QoS qos = rclcpp::SensorDataQoS()) : node_(node), qos_(qos) {}
-  void Publish(const std::string &topic_name, const typename MessageType::SharedPtr &message) {
+  void Publish(const std::string &topic_name, const typename MessageType::SharedPtr &&message) {
     if (bypassed_.load()) {
       return;
     }

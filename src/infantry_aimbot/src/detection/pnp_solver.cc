@@ -25,6 +25,13 @@ result_sp<geometry_msgs::msg::Pose> PnpSolver::SolvePose(const std::vector<cv::P
   cv::cv2eigen(intermidiate_buffer_.tvec, intermidiate_buffer_.tvec_ros);
   intermidiate_buffer_.tvec_ros = intermidiate_buffer_.cv_to_ros * intermidiate_buffer_.tvec_ros;
   intermidiate_buffer_.rvec_ros = intermidiate_buffer_.cv_to_ros * intermidiate_buffer_.rvec_ros;
+  ret_buffer_->position.x = intermidiate_buffer_.tvec_ros(0);
+  ret_buffer_->position.y = intermidiate_buffer_.tvec_ros(1);
+  ret_buffer_->position.z = intermidiate_buffer_.tvec_ros(2);
+  ret_buffer_->orientation.x = intermidiate_buffer_.rvec_ros(0);
+  ret_buffer_->orientation.y = intermidiate_buffer_.rvec_ros(1);
+  ret_buffer_->orientation.z = intermidiate_buffer_.rvec_ros(2);
+  ret_buffer_->orientation.w = intermidiate_buffer_.rvec_ros(3);
   return ret_buffer_;
 }
 

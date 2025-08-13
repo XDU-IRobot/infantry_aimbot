@@ -16,12 +16,14 @@
 #include "ros/params_manager.hpp"
 #include "ros/publisher_pool.hpp"
 #include "detection/pipeline.hpp"
+#include "detection/visualization.hpp"
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   auto ros_node = ia::ros::NodeSingleton::GetInstance().node();
   auto logger = ros_node->get_logger();
   ia::ros::PublisherPool<sensor_msgs::msg::CompressedImage> image_publisher_pool{ros_node};
+  ia::ros::PublisherPool<visualization_msgs::msg::MarkerArray> marker_array_pub_pool{ros_node};
   ia::ros::ParamsManager<Params> params_manager(ros_node);
   const auto &params = params_manager.data();
   params_manager.Init();
@@ -55,6 +57,7 @@ int main(int argc, char **argv) {
     if (armors && params.debug) {
       ia::detection::TraditionalDetector::DrawResult(frame.image, *armors.value());
       image_publisher_pool.Publish("debug_image", frame.toCompressedImageMsg());
+      marker_array_pub_pool.Publish("armors", ia::detection::DrawArmorMarker(*armors.value()));
     }
   }
   rclcpp::shutdown();

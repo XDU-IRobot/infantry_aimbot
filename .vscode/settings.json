@@ -17,7 +17,7 @@
     "-j=12",
     "--all-scopes-completion",
     "--completion-style=detailed",
-    "--header-insertion=iwyu", // Include what you use
+    "--header-insertion=never",
     "--pch-storage=memory", // pch = precompiled header
     "--cross-file-rename",
     "--fallback-style=Google", // clang-format style to apply by default when no .clang-format file is found

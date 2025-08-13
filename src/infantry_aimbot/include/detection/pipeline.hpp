@@ -9,6 +9,7 @@
 #include "pnp_solver.hpp"
 #include "traditional_detector.hpp"
 #include "params.hpp"
+#include "ros/node.hpp"
 
 namespace ia {
 namespace detection {
@@ -61,7 +62,7 @@ class DetectionPipeline {
     if (!detected_armors) {
       return std::make_error_code(std::errc::no_message);
     }
-    for (auto armor : *detected_armors.value()) {
+    for (auto &armor : *detected_armors.value()) {
       // solve pose for each detected armor
       const std::vector<cv::Point2f> image_points{armor.left_light.up, armor.right_light.up, armor.right_light.down,
                                                   armor.left_light.down};
@@ -69,6 +70,8 @@ class DetectionPipeline {
                                                             : big_armor_pnp_solver_.SolvePose(image_points);
       if (solved_pose) {
         armor.pose = *solved_pose.value();
+      } else {
+        RCLCPP_WARN(ia::ros::NodeSingleton::GetInstance().node()->get_logger(), "Failed to solve pose");
       }
     }
     for (auto &armor : *detected_armors.value()) {
