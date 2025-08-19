@@ -48,5 +48,5 @@ class NumberClassifier {
   cv::dnn::Net net_;
 };
 
-}  // namespace detector
+}  // namespace detection
 }  // namespace ia

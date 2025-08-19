@@ -83,5 +83,5 @@ class TraditionalDetector {
  public:
   cv::Mat src_;
 };
-}  // namespace detector
+}  // namespace detection
 }  // namespace ia

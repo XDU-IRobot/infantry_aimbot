@@ -245,9 +245,9 @@ result_sp<std::vector<Armor>> TraditionalDetector::MatchLights(tbb::concurrent_v
   return ret;
 }
 
-auto TraditionalDetector::IsValidArmor(const LightBlob &light_1, const LightBlob &light_2)
-    -> std::pair<bool,         ///< 这一对灯条是不是装甲板
-                 Armor::Type>  ///< 大装甲还是小装甲
+auto TraditionalDetector::IsValidArmor(const LightBlob &light_1,
+                                       const LightBlob &light_2) -> std::pair<bool,  ///< 这一对灯条是不是装甲板
+                                                                              Armor::Type>  ///< 大装甲还是小装甲
 {
   const float width = light_2.rrect.center.x - light_1.rrect.center.x;
   const float height = (light_2.length + light_1.length) / 2.0;

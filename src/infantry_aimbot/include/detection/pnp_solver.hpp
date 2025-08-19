@@ -40,5 +40,5 @@ class PnpSolver {
   sp<geometry_msgs::msg::Pose> ret_buffer_{std::make_shared<geometry_msgs::msg::Pose>()};
 };
 
-}  // namespace detector
+}  // namespace detection
 }  // namespace ia
