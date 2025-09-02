@@ -25,13 +25,13 @@ class DetectionPipeline {
   constexpr static float kSmallArmorHeight = 0.05;
 
  public:
-  explicit DetectionPipeline(const RosParams &params)
-      : detector_{{params.bin_threshold, params.enemy_color},
-                  {params.angle_to_vertigal_max, params.height_width_min_ratio, params.size_area_min_ratio,
-                   params.is_corner_correct},
-                  {params.lights_angle_max_diff, params.lights_length_max_ratio, params.lights_y_max_ratio,
-                   params.width_height_min_ratio, params.width_height_max_ratio, params.max_angle,
-                   params.inside_thresh}},
+  explicit DetectionPipeline(const RosParams &config)
+      : detector_{{config.detector.bin_threshold, config.detector.enemy_color},
+                  {config.detector.angle_to_vertical_max, config.detector.height_width_min_ratio,
+                   config.detector.size_area_min_ratio, config.detector.is_corner_correct},
+                  {config.detector.lights_angle_max_diff, config.detector.lights_length_max_ratio,
+                   config.detector.lights_y_max_ratio, config.detector.width_height_min_ratio,
+                   config.detector.width_height_max_ratio, config.detector.max_angle, config.detector.inside_thresh}},
         big_armor_pnp_solver_{
             {
                 cv::Point3f{-kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},  ///< 左上
@@ -39,11 +39,14 @@ class DetectionPipeline {
                 cv::Point3f{kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f},    ///< 右下
                 cv::Point3f{-kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f}    ///< 左下
             },
-            (cv::Mat_<double>(3, 3) << params.camera_matrix[0], params.camera_matrix[1], params.camera_matrix[2],
-             params.camera_matrix[3], params.camera_matrix[4], params.camera_matrix[5], params.camera_matrix[6],
-             params.camera_matrix[7], params.camera_matrix[8]),
-            (cv::Mat_<double>(1, 5) << params.distortion_coefficients[0], params.distortion_coefficients[1],
-             params.distortion_coefficients[2], params.distortion_coefficients[3], params.distortion_coefficients[4])},
+            (cv::Mat_<double>(3, 3) << config.camera_info.camera_matrix[0], config.camera_info.camera_matrix[1],
+             config.camera_info.camera_matrix[2], config.camera_info.camera_matrix[3],
+             config.camera_info.camera_matrix[4], config.camera_info.camera_matrix[5],
+             config.camera_info.camera_matrix[6], config.camera_info.camera_matrix[7],
+             config.camera_info.camera_matrix[8]),
+            (cv::Mat_<double>(1, 5) << config.camera_info.distortion_coefficients[0],
+             config.camera_info.distortion_coefficients[1], config.camera_info.distortion_coefficients[2],
+             config.camera_info.distortion_coefficients[3], config.camera_info.distortion_coefficients[4])},
         small_armor_pnp_solver_{
             {
                 cv::Point3f{-kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},  ///< 左上
@@ -51,14 +54,17 @@ class DetectionPipeline {
                 cv::Point3f{kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f},    ///< 右下
                 cv::Point3f{-kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f}    ///< 左下
             },
-            (cv::Mat_<double>(3, 3) << params.camera_matrix[0], params.camera_matrix[1], params.camera_matrix[2],
-             params.camera_matrix[3], params.camera_matrix[4], params.camera_matrix[5], params.camera_matrix[6],
-             params.camera_matrix[7], params.camera_matrix[8]),
-            (cv::Mat_<double>(1, 5) << params.distortion_coefficients[0], params.distortion_coefficients[1],
-             params.distortion_coefficients[2], params.distortion_coefficients[3], params.distortion_coefficients[4])},
+            (cv::Mat_<double>(3, 3) << config.camera_info.camera_matrix[0], config.camera_info.camera_matrix[1],
+             config.camera_info.camera_matrix[2], config.camera_info.camera_matrix[3],
+             config.camera_info.camera_matrix[4], config.camera_info.camera_matrix[5],
+             config.camera_info.camera_matrix[6], config.camera_info.camera_matrix[7],
+             config.camera_info.camera_matrix[8]),
+            (cv::Mat_<double>(1, 5) << config.camera_info.distortion_coefficients[0],
+             config.camera_info.distortion_coefficients[1], config.camera_info.distortion_coefficients[2],
+             config.camera_info.distortion_coefficients[3], config.camera_info.distortion_coefficients[4])},
         number_classifier_(std::filesystem::path(ament_index_cpp::get_package_share_directory("infantry_aimbot")) /
-                           std::filesystem::path(params.number_classify_model_path)),
-        params_{params} {}
+                           std::filesystem::path(config.number_classifier.model_path)),
+        params_{config} {}
   ~DetectionPipeline() = default;
 
   result_sp<std::vector<Armor>> ProcessImage(const cv::Mat &image) {
