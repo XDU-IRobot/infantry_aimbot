@@ -46,8 +46,6 @@ class TraditionalDetector {
    */
   result_sp<std::vector<Armor>> DetectArmors(const cv::Mat &image);
 
-  static void DrawResult(cv::Mat &image, const std::vector<Armor> &armors);
-
   /**
    * @brief 设置敌方颜色
    * @param[in] enemy_color 敌方颜色

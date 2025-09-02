@@ -14,11 +14,10 @@ using sp = std::shared_ptr<T>;
 template <typename T>
 using up = std::unique_ptr<T>;
 
-using outcome_v2::result;
 template <typename T>
-using result_sp = result<sp<T>>;
+using result_sp = outcome_v2::result<sp<T>>;
 template <typename T>
-using result_up = result<up<T>>;
+using result_up = outcome_v2::result<up<T>>;
 
 enum Color {
   RED = 0,

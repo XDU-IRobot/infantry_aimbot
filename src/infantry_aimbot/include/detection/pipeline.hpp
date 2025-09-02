@@ -14,6 +14,10 @@
 namespace ia {
 namespace detection {
 
+/**
+ * @brief 装甲板检测器、位姿解算器、数字分类器组合在一起形成的处理流水线
+ * @warning 整个流水线以及各个组件都是线程不安全的，涉及到并发优化应该给每个线程都创建一个独立实例
+ */
 class DetectionPipeline {
   constexpr static float kBigArmorWidth = 0.225;
   constexpr static float kBigArmorHeight = 0.05;
@@ -21,7 +25,7 @@ class DetectionPipeline {
   constexpr static float kSmallArmorHeight = 0.05;
 
  public:
-  explicit DetectionPipeline(const Params &params)
+  explicit DetectionPipeline(const RosParams &params)
       : detector_{{params.bin_threshold, params.enemy_color},
                   {params.angle_to_vertigal_max, params.height_width_min_ratio, params.size_area_min_ratio,
                    params.is_corner_correct},
@@ -89,7 +93,7 @@ class DetectionPipeline {
   TraditionalDetector detector_;
   PnpSolver big_armor_pnp_solver_, small_armor_pnp_solver_;
   NumberClassifier number_classifier_;
-  Params params_;
+  RosParams params_;
 };
 
 }  // namespace detection

@@ -1,12 +1,11 @@
 
 set(BUILD_TESTING OFF)
-set(TBB_TEST OFF)
 
 add_subdirectory(daheng_cam)
 add_subdirectory(backward-cpp)
 add_subdirectory(outcome)
 add_subdirectory(pfr)
-add_subdirectory(oneTBB)
+find_package(TBB REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 # find_package(OpenMP REQUIRED)
@@ -24,4 +23,8 @@ target_link_libraries(${PROJECT_NAME}_libs INTERFACE
   Boost::pfr
   TBB::tbb
   # OpenMP::OpenMP_CXX
+)
+
+target_include_directories(${PROJECT_NAME}_libs INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/kalman/include
 )

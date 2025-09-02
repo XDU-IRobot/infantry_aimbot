@@ -24,17 +24,17 @@ int main(int argc, char **argv) {
   auto logger = ros_node->get_logger();
   ia::ros::PublisherPool<sensor_msgs::msg::CompressedImage> image_publisher_pool{ros_node};
   ia::ros::PublisherPool<visualization_msgs::msg::MarkerArray> marker_array_pub_pool{ros_node};
-  ia::ros::ParamsManager<Params> params_manager(ros_node);
-  const auto &params = params_manager.data();
-  params_manager.Init();
-  if (params.debug) {
+  ia::ros::ParamsManager<RosParams> ros_params_manager(ros_node);
+  const auto &config = ros_params_manager.data();
+  ros_params_manager.Init();
+  if (config.debug) {
     logger.set_level(rclcpp::Logger::Level::Debug);
   } else {
     image_publisher_pool.Bypass(true);
     logger.set_level(rclcpp::Logger::Level::Info);
   }
 
-  ia::detection::DetectionPipeline detection_pipeline{params};
+  ia::detection::DetectionPipeline detection_pipeline{config};
 
   const auto package_path = ament_index_cpp::get_package_share_directory("infantry_aimbot");
   cv::VideoCapture cap(package_path + "/assets/test3.mp4");
@@ -54,10 +54,10 @@ int main(int argc, char **argv) {
         std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_time)
             .count());
 
-    if (armors && params.debug) {
-      ia::detection::TraditionalDetector::DrawResult(frame.image, *armors.value());
+    if (armors && config.debug) {
+      ia::detection::DrawArmor(frame.image, *armors.value());
       image_publisher_pool.Publish("debug_image", frame.toCompressedImageMsg());
-      marker_array_pub_pool.Publish("armors", ia::detection::DrawArmorMarker(*armors.value()));
+      marker_array_pub_pool.Publish("armors", ia::detection::DrawArmorToRviz(*armors.value()));
     }
   }
   rclcpp::shutdown();

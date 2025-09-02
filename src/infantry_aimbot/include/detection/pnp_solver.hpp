@@ -15,6 +15,11 @@
 namespace ia {
 namespace detection {
 
+/**
+ * @brief
+ * PnP求解器，即对cv::solvePnP函数的二次封装，根据2D图像点和3D物体点计算相机位姿；此外处理了opencv到ros的坐标变换，类内存储相机矩阵等相关信息，简化外部代码
+ * @warning 线程不安全
+ */
 class PnpSolver {
  public:
   PnpSolver() = delete;

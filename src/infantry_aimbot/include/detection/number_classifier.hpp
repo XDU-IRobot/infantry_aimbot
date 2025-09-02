@@ -11,7 +11,7 @@ namespace detection {
 /**
  * @brief   数字分类器
  * @details 该分类器用于对图像中的数字进行分类，用于识别装甲板上的数字。
- * @warning 这个分类器是线程不安全的，不能在多线程环境中使用。如果需要并行优化，每个worker应该拥有自己的实例。
+ * @warning 线程不安全
  */
 class NumberClassifier {
  public:

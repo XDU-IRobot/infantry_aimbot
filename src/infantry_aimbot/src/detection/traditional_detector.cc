@@ -30,30 +30,6 @@ result_sp<std::vector<Armor>> TraditionalDetector::DetectArmors(const cv::Mat &i
   return MatchLights(*lights.value());
 }
 
-void TraditionalDetector::DrawResult(cv::Mat &image, const std::vector<Armor> &armors) {
-  for (const auto &armor : armors) {
-    const std::string text1 = "id: " + std::to_string(armor.num_id);
-    const std::string text2 = "conf: " + std::to_string(int(armor.confidence * 100));
-
-    cv::line(image, armor.left_light.up, armor.left_light.down, cv::Scalar(255, 0, 255), 1);
-    cv::line(image, armor.left_light.down, armor.right_light.down, cv::Scalar(255, 0, 255), 1);
-    cv::line(image, armor.right_light.down, armor.right_light.up, cv::Scalar(255, 0, 255), 1);
-    cv::line(image, armor.right_light.up, armor.left_light.up, cv::Scalar(255, 0, 255), 1);
-
-    const float distance =
-        sqrt(pow(armor.pose.position.x, 2) + pow(armor.pose.position.y, 2) + pow(armor.pose.position.z, 2));
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(2) << distance;
-
-    std::string text3 = "distance: " + oss.str() + "m";
-    cv::putText(image, text1, armor.right_light.down, cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(154, 250, 0), 2, 3);
-    cv::putText(image, text2, cv::Point(armor.right_light.down.x, armor.right_light.down.y + 30),
-                cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(154, 250, 0), 2, 3);
-    cv::putText(image, text3, cv::Point(armor.right_light.down.x, armor.right_light.down.y + 60),
-                cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(154, 250, 0), 2, 3);
-  }
-}
-
 cv::Point TraditionalDetector::FindMaxBrightnessChange(const cv::Mat &img, cv::Point start, cv::Point end) {
   // Calculate the number of samples along the line
   int num_samples = std::max(abs(end.x - start.x), abs(end.y - start.y));

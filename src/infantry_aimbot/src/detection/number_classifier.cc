@@ -4,7 +4,7 @@
 namespace ia {
 namespace detection {
 result_sp<NumberClassifier::ClassifyResult> NumberClassifier::Classify(const cv::Mat &img,
-                                                                       const std::vector<cv::Point2f> &light_points) {
+                                                                       const std::vector<cv::Point2f> &roi) {
   const int top_light_y = (kWarpHeight - kLightLength) / 2 - 1;
   const int bottom_light_y = top_light_y + kLightLength;
   const int warp_width = kSmallArmorWidth;
@@ -14,7 +14,7 @@ result_sp<NumberClassifier::ClassifyResult> NumberClassifier::Classify(const cv:
       cv::Point(warp_width - 1, top_light_y),
       cv::Point(warp_width - 1, bottom_light_y),
   };
-  const auto rotation_matrix = cv::getPerspectiveTransform(light_points.data(), target_vertices);
+  const auto rotation_matrix = cv::getPerspectiveTransform(roi.data(), target_vertices);
 
   static cv::Mat warped;
   cv::warpPerspective(img, warped, rotation_matrix, cv::Size(warp_width, kWarpHeight));

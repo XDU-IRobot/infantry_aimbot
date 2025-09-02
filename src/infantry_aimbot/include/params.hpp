@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-struct Params {
+struct RosParams {
   bool debug;
 
   std::vector<double> camera_matrix;
