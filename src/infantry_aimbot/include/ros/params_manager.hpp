@@ -65,7 +65,6 @@ class ParamsManager {
   }
 
  private:
-
   // 判断是否为std::vector
   template <typename T>
   struct is_std_vector : std::false_type {};
@@ -75,9 +74,7 @@ class ParamsManager {
   // 判断是否为可递归反射的结构体类型（聚合且非string非vector）
   template <typename T>
   inline static constexpr bool is_reflectable_struct_v =
-      std::is_aggregate_v<T> &&
-      !std::is_same_v<T, std::string> &&
-      !is_std_vector<T>::value;
+      std::is_aggregate_v<T> && !std::is_same_v<T, std::string> && !is_std_vector<T>::value;
 
   // 递归加载参数
   template <typename T>
