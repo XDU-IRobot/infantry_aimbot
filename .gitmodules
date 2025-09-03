@@ -7,3 +7,6 @@
 [submodule "src/infantry_aimbot/libs/kalman"]
 	path = src/infantry_aimbot/libs/kalman
 	url = https://github.com/mherb/kalman.git
+[submodule "src/infantry_aimbot/libs/googletest"]
+	path = src/infantry_aimbot/libs/googletest
+	url = https://github.com/google/googletest.git

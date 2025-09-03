@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+
 add_subdirectory(libs)
 
 find_package(ament_cmake_auto REQUIRED)

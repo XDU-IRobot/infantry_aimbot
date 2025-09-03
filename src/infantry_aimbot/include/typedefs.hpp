@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <geometry_msgs/msg/detail/pose__struct.hpp>
+// #include <geometry_msgs/msg/detail/pose__struct.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 
 #include <opencv2/opencv.hpp>
@@ -18,6 +18,8 @@ template <typename T>
 using result_sp = outcome_v2::result<sp<T>>;
 template <typename T>
 using result_up = outcome_v2::result<up<T>>;
+
+using result_void = outcome_v2::result<void>;
 
 enum Color {
   RED = 0,
@@ -103,5 +105,8 @@ struct Armor {
   double confidence;
 
   geometry_msgs::msg::Pose pose;
+
+  size_t group_id = 0;  // 装甲板组别ID
 };
+
 }  // namespace ia
