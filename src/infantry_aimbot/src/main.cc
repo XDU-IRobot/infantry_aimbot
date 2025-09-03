@@ -17,6 +17,23 @@
 #include "ros/publisher_pool.hpp"
 #include "detection/pipeline.hpp"
 #include "detection/visualization.hpp"
+#include "daheng_cam/daheng.hpp"
+
+auto GetCamera(const RosParams &ros_params) {
+  auto cam = std::make_shared<camera::DahengCam>();
+  cam->set_parameter(camera::CamParamType::Width, ros_params.camera_settings.width);
+  cam->set_parameter(camera::CamParamType::Height, ros_params.camera_settings.height);
+  cam->set_parameter(camera::CamParamType::Exposure, ros_params.camera_settings.exposure);
+  cam->set_parameter(camera::CamParamType::AutoExposure, ros_params.camera_settings.auto_exposure);
+  cam->set_parameter(camera::CamParamType::Gain, ros_params.camera_settings.gain);
+  cam->set_parameter(camera::CamParamType::Gamma, ros_params.camera_settings.gain);
+  cam->set_parameter(camera::CamParamType::Fps, ros_params.camera_settings.fps);
+  cam->set_parameter(camera::CamParamType::AutoWhiteBalance, ros_params.camera_settings.auto_white_balance);
+  cam->set_parameter(camera::CamParamType::RGain, ros_params.camera_settings.rgain);
+  cam->set_parameter(camera::CamParamType::GGain, ros_params.camera_settings.ggain);
+  cam->set_parameter(camera::CamParamType::BGain, ros_params.camera_settings.bgain);
+  return cam;
+}
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
@@ -25,6 +42,7 @@ int main(int argc, char **argv) {
   ia::ros::PublisherPool<sensor_msgs::msg::CompressedImage> image_publisher_pool{ros_node};
   ia::ros::PublisherPool<visualization_msgs::msg::MarkerArray> marker_array_pub_pool{ros_node};
   ia::ros::ParamsManager<RosParams> ros_params_manager(ros_node);
+
   const auto &config = ros_params_manager.data();
   ros_params_manager.Init();
   if (config.debug) {
@@ -38,11 +56,14 @@ int main(int argc, char **argv) {
 
   const auto package_path = ament_index_cpp::get_package_share_directory("infantry_aimbot");
   cv::VideoCapture cap(package_path + "/assets/test3.mp4");
+  auto cam = GetCamera(config);
+  cam->open();
 
   cv_bridge::CvImage frame;
   frame.encoding = sensor_msgs::image_encodings::BGR8;
   while (cap.isOpened() && rclcpp::ok()) {
-    cap >> frame.image;
+    // cap >> frame.image;
+    cam->grab_image(frame.image);
     if (frame.image.empty()) {
       break;
     }
