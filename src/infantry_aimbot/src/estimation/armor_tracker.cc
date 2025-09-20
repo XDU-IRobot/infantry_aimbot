@@ -26,14 +26,25 @@ static std::vector<int> HungarianMinCost(const std::vector<std::vector<double>>&
       used[j0] = true;
       int i0 = p[j0], j1 = 0;
       double delta = INF;
-      for (int j = 1; j <= n; ++j) if (!used[j]) {
-        double cur = a[i0 - 1][j - 1] - u[i0] - v[j];
-        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
-        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
-      }
+      for (int j = 1; j <= n; ++j)
+        if (!used[j]) {
+          double cur = a[i0 - 1][j - 1] - u[i0] - v[j];
+          if (cur < minv[j]) {
+            minv[j] = cur;
+            way[j] = j0;
+          }
+          if (minv[j] < delta) {
+            delta = minv[j];
+            j1 = j;
+          }
+        }
       for (int j = 0; j <= n; ++j) {
-        if (used[j]) { u[p[j]] += delta; v[j] -= delta; }
-        else { minv[j] -= delta; }
+        if (used[j]) {
+          u[p[j]] += delta;
+          v[j] -= delta;
+        } else {
+          minv[j] -= delta;
+        }
       }
       j0 = j1;
     } while (p[j0] != 0);
@@ -78,7 +89,7 @@ result_sp<std::vector<std::pair<size_t, size_t>>> MatchArmor(std::shared_ptr<std
   std::unordered_map<int, std::vector<size_t>> now_by_id, last_by_id;
   now_by_id.reserve(now.size());
   last_by_id.reserve(last.size());
-  for (size_t i = 0; i < now.size(); ++i)  now_by_id[now[i].num_id].push_back(i);
+  for (size_t i = 0; i < now.size(); ++i) now_by_id[now[i].num_id].push_back(i);
   for (size_t j = 0; j < last.size(); ++j) last_by_id[last[j].num_id].push_back(j);
 
   auto matches = std::make_shared<std::vector<std::pair<size_t, size_t>>>();
@@ -110,7 +121,7 @@ result_sp<std::vector<std::pair<size_t, size_t>>> MatchArmor(std::shared_ptr<std
     auto assign = HungarianMinCost(cost);
 
     // 收集匹配对（仅真实行/列）
-    std::vector<std::pair<size_t,size_t>> pairs; // (now_index, last_index)
+    std::vector<std::pair<size_t, size_t>> pairs;  // (now_index, last_index)
     pairs.reserve(std::min(m, n));
     for (int i = 0; i < m; ++i) {
       int j = assign[i];
