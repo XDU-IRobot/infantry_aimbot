@@ -1,6 +1,5 @@
 #include "estimation/car_tracker.hpp"
 
-
 namespace ia {
 namespace estimation {
 CarTracker::CarTracker() {}
