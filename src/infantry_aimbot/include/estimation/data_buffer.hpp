@@ -108,10 +108,8 @@ class DataBuffer {
   }
 
   // 便捷重载：按值/右值插入
-  result_void AddData(const T& data, time_point timestamp) {
-    return AddData(std::make_shared<T>(data), timestamp);
-  }
-  result_void AddData(T&& data, time_point timestamp) {
+  result_void AddData(const T &data, time_point timestamp) { return AddData(std::make_shared<T>(data), timestamp); }
+  result_void AddData(T &&data, time_point timestamp) {
     return AddData(std::make_shared<T>(std::move(data)), timestamp);
   }
 

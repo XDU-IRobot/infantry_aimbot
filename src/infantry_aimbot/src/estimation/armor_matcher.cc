@@ -32,7 +32,7 @@ result_sp<std::vector<std::pair<size_t, size_t>>> MatchArmor(std::shared_ptr<std
   std::unordered_map<int, std::vector<size_t>> now_by_id, last_by_id;
   now_by_id.reserve(now.size());
   last_by_id.reserve(last.size());
-  for (size_t i = 0; i < now.size(); ++i)  now_by_id[now[i].num_id].push_back(i);
+  for (size_t i = 0; i < now.size(); ++i) now_by_id[now[i].num_id].push_back(i);
   for (size_t j = 0; j < last.size(); ++j) last_by_id[last[j].num_id].push_back(j);
 
   auto matches = std::make_shared<std::vector<std::pair<size_t, size_t>>>();
@@ -60,14 +60,14 @@ result_sp<std::vector<std::pair<size_t, size_t>>> MatchArmor(std::shared_ptr<std
       const auto &pa = al.pose.position, &pb = an.pose.position;
       const double dx = pa.x - pb.x, dy = pa.y - pb.y, dz = pa.z - pb.z;
       const double d2 = dx * dx + dy * dy + dz * dz;
-      return d2; // 若要阈值裁剪，可在大于阈值时返回 INF
+      return d2;  // 若要阈值裁剪，可在大于阈值时返回 INF
     };
 
     // 直接基于大小 m x n 的惰性成本进行匹配
     auto assign = ia::estimation::HungarianAssign(m, n, cost, INF);
 
     // 收集匹配对（仅真实行/列，且过滤掉无效大代价）
-    std::vector<std::pair<size_t,size_t>> pairs; // (now_index, last_index)
+    std::vector<std::pair<size_t, size_t>> pairs;  // (now_index, last_index)
     pairs.reserve(std::min(m, n));
     for (size_t i = 0; i < m; ++i) {
       int j = assign[i];
