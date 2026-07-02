@@ -4,10 +4,44 @@
 #include <geometry_msgs/msg/detail/pose__struct.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 
+#include <Eigen/Dense>
 #include <opencv2/opencv.hpp>
 #include <outcome.hpp>
 
 namespace ia {
+
+// 装甲板名称（由数字分类器结果映射）
+enum class ArmorName : int {
+  kOne = 0,
+  kTwo,
+  kThree,
+  kFour,
+  kFive,
+  kSentry,
+  kOutpost,
+  kBase,
+  kNotArmor
+};
+
+// 装甲板类型（与现有的 Armor::Type 互补，用于后端模块）
+enum class ArmorKind { kSmall, kBig };
+
+// 装甲板优先级（数字越小优先级越高）
+enum class ArmorPriority : int {
+  kFirst = 1,
+  kSecond,
+  kThird,
+  kFourth,
+  kFifth
+};
+
+// 云台控制指令
+struct Command {
+  bool control{false};  // 是否有有效控制指令
+  bool shoot{false};    // 是否开火
+  double yaw{0.0};      // yaw 角度 (rad)
+  double pitch{0.0};    // pitch 角度 (rad)
+};
 
 template <typename T>
 using sp = std::shared_ptr<T>;
@@ -103,5 +137,16 @@ struct Armor {
   double confidence;
 
   geometry_msgs::msg::Pose pose;
+
+  // ---- 世界坐标系成员（由 ArmorSolver 填充） ----
+  Eigen::Vector3d xyz_in_gimbal{Eigen::Vector3d::Zero()};  // 云台坐标系下的3D坐标 (m)
+  Eigen::Vector3d xyz_in_world{Eigen::Vector3d::Zero()};   // 世界坐标系下的3D坐标 (m)
+  Eigen::Vector3d ypr_in_gimbal{Eigen::Vector3d::Zero()};  // 云台坐标系下的欧拉角 (rad)
+  Eigen::Vector3d ypr_in_world{Eigen::Vector3d::Zero()};   // 世界坐标系下的欧拉角 (rad)
+  Eigen::Vector3d ypd_in_world{Eigen::Vector3d::Zero()};   // 球坐标系 (yaw, pitch, distance)
+  double yaw_raw{0.0};                                     // yaw优化前的原始值 (rad)
+  ArmorName name{ArmorName::kNotArmor};                     // 装甲板名称
+  ArmorKind kind{ArmorKind::kSmall};                         // 装甲板类型
+  ArmorPriority priority{ArmorPriority::kFifth};            // 优先级
 };
 }  // namespace ia

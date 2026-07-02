@@ -34,10 +34,10 @@ class DetectionPipeline {
                    config.detector.width_height_max_ratio, config.detector.max_angle, config.detector.inside_thresh}},
         big_armor_pnp_solver_{
             {
-                cv::Point3f{-kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},  ///< 左上
-                cv::Point3f{kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},   ///< 右上
-                cv::Point3f{kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f},    ///< 右下
-                cv::Point3f{-kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f}    ///< 左下
+                cv::Point3f{-kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},
+                cv::Point3f{kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},
+                cv::Point3f{kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f},
+                cv::Point3f{-kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f}
             },
             (cv::Mat_<double>(3, 3) << config.camera_info.camera_matrix[0], config.camera_info.camera_matrix[1],
              config.camera_info.camera_matrix[2], config.camera_info.camera_matrix[3],
@@ -49,10 +49,10 @@ class DetectionPipeline {
              config.camera_info.distortion_coefficients[3], config.camera_info.distortion_coefficients[4])},
         small_armor_pnp_solver_{
             {
-                cv::Point3f{-kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},  ///< 左上
-                cv::Point3f{kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},   ///< 右上
-                cv::Point3f{kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f},    ///< 右下
-                cv::Point3f{-kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f}    ///< 左下
+                cv::Point3f{-kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},
+                cv::Point3f{kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},
+                cv::Point3f{kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f},
+                cv::Point3f{-kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f}
             },
             (cv::Mat_<double>(3, 3) << config.camera_info.camera_matrix[0], config.camera_info.camera_matrix[1],
              config.camera_info.camera_matrix[2], config.camera_info.camera_matrix[3],
@@ -62,10 +62,18 @@ class DetectionPipeline {
             (cv::Mat_<double>(1, 5) << config.camera_info.distortion_coefficients[0],
              config.camera_info.distortion_coefficients[1], config.camera_info.distortion_coefficients[2],
              config.camera_info.distortion_coefficients[3], config.camera_info.distortion_coefficients[4])},
-        number_classifier_(std::filesystem::path(ament_index_cpp::get_package_share_directory("infantry_aimbot")) /
-                           std::filesystem::path(config.number_classifier.model_path)),
+        number_classifier_(
+            config.number_classifier.model_path.empty()
+                ? nullptr
+                : std::make_unique<NumberClassifier>(
+                      std::filesystem::path(ament_index_cpp::get_package_share_directory("infantry_aimbot")) /
+                      std::filesystem::path(config.number_classifier.model_path))),
         params_{config} {}
   ~DetectionPipeline() = default;
+
+  void SetBinThreshold(double threshold) { detector_.SetBinThreshold(threshold); }
+  void SetHeightWidthMinRatio(double ratio) { detector_.SetHeightWidthMinRatio(ratio); }
+  void SetAngleToVerticalMax(double angle) { detector_.SetAngleToVerticalMax(angle); }
 
   result_sp<std::vector<Armor>> ProcessImage(const cv::Mat &image) {
     const auto detected_armors = detector_.DetectArmors(image);
@@ -84,12 +92,14 @@ class DetectionPipeline {
         RCLCPP_WARN(ia::ros::NodeSingleton::GetInstance().node()->get_logger(), "Failed to solve pose");
       }
     }
-    for (auto &armor : *detected_armors.value()) {
-      const auto recognized_number = number_classifier_.Classify(
-          image, {armor.left_light.down, armor.left_light.up, armor.right_light.up, armor.right_light.down});
-      if (recognized_number) {
-        armor.num_id = recognized_number.value()->number;
-        armor.confidence = recognized_number.value()->confidence;
+    if (number_classifier_) {
+      for (auto &armor : *detected_armors.value()) {
+        const auto recognized_number = number_classifier_->Classify(
+            image, {armor.left_light.down, armor.left_light.up, armor.right_light.up, armor.right_light.down});
+        if (recognized_number) {
+          armor.num_id = recognized_number.value()->number;
+          armor.confidence = recognized_number.value()->confidence;
+        }
       }
     }
     return detected_armors;
@@ -98,7 +108,7 @@ class DetectionPipeline {
  private:
   TraditionalDetector detector_;
   PnpSolver big_armor_pnp_solver_, small_armor_pnp_solver_;
-  NumberClassifier number_classifier_;
+  up<NumberClassifier> number_classifier_;
   RosParams params_;
 };
 

@@ -3,11 +3,12 @@
     debug: true
 
     camera_settings:
-      width: 1920
-      height: 1200
-      exposure: 2100
+      camera_type: "hikrobot"
+      width: 1440
+      height: 1080
+      exposure: 10
       auto_exposure: false
-      gain: 24
+      gain: 1
       fps: 168
       auto_white_balance: true
       rgain: 0.0
@@ -56,3 +57,30 @@
 
     number_classifier:
       model_path: "assets/lenet.onnx"
+
+    solver:
+      R_gimbal2imubody: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+      R_camera2gimbal: [-0.0271821, -0.1261615, 0.9916372, -0.9994911, 0.0199983, -0.0248531, -0.0166956, -0.9918081, -0.1266409]
+      t_camera2gimbal: [0.1316067, 0.1037772, 0.0249083]
+
+    tracker:
+      min_detect_count: 5
+      max_temp_lost_count: 15
+      outpost_max_temp_lost_count: 75
+
+    aimer:
+      imu_topic: ""
+      yaw_offset: 2.0
+      pitch_offset: 6.5
+      comming_angle: 55.0
+      leaving_angle: 20.0
+      decision_speed: 7.0
+      high_speed_delay_time: 0.0
+      low_speed_delay_time: 0.0
+
+    shooter:
+      first_tolerance: 3.0
+      second_tolerance: 2.0
+      judge_distance: 2.0
+      auto_fire: false
+      bullet_speed: 23.0

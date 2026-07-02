@@ -102,6 +102,10 @@ result_sp<tbb::concurrent_vector<LightBlob>> TraditionalDetector::FindLights(con
   /*-----------寻找并筛选灯条轮廓-----------*/
   std::vector<std::vector<cv::Point>> contours;
   cv::findContours(binary.image, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+  // 轮廓过多时跳过处理防止卡死（阈值太低导致）
+  if (contours.size() > 5000) {
+    return std::make_error_code(std::errc::no_message);
+  }
   tbb::parallel_for(std::size_t(0), contours.size(), [&](size_t idx) {
     const auto &contour = contours[idx];
     if (cv::contourArea(contour) < 9) {
@@ -278,6 +282,18 @@ auto TraditionalDetector::IsValidArmor(const LightBlob &light_1,
 void TraditionalDetector::SetEnemyColor(Color enemy_color) {
   assert(enemy_color == Color::RED || enemy_color == Color::BLUE);
   enemy_color_ = enemy_color;
+}
+
+void TraditionalDetector::SetBinThreshold(double threshold) {
+  process_params_.bin_threshold = threshold;
+}
+
+void TraditionalDetector::SetHeightWidthMinRatio(double ratio) {
+  light_params_.height_width_min_ratio = ratio;
+}
+
+void TraditionalDetector::SetAngleToVerticalMax(double angle) {
+  light_params_.angle_to_vertigal_max = angle;
 }
 }  // namespace detection
 }  // namespace ia

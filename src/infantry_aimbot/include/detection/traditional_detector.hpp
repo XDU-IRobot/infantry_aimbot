@@ -51,6 +51,9 @@ class TraditionalDetector {
    * @param[in] enemy_color 敌方颜色
    **/
   void SetEnemyColor(Color enemy_color);
+  void SetBinThreshold(double threshold);
+  void SetHeightWidthMinRatio(double ratio);
+  void SetAngleToVerticalMax(double angle);
 
  private:
   result_sp<tbb::concurrent_vector<LightBlob>> FindLights(const cv::Mat &image);
