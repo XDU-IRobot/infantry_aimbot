@@ -57,22 +57,24 @@ ia::ArmorName NumIdToArmorName(int num_id) {
 
 ia::ArmorPriority ArmorNameToPriority(ia::ArmorName name) {
   switch (name) {
-    case ia::ArmorName::kOne:   return ia::ArmorPriority::kFirst;
-    case ia::ArmorName::kTwo:   return ia::ArmorPriority::kSecond;
-    case ia::ArmorName::kThree: return ia::ArmorPriority::kThird;
-    case ia::ArmorName::kFour:  return ia::ArmorPriority::kFourth;
-    default:                    return ia::ArmorPriority::kFifth;
+    case ia::ArmorName::kOne:
+      return ia::ArmorPriority::kFirst;
+    case ia::ArmorName::kTwo:
+      return ia::ArmorPriority::kSecond;
+    case ia::ArmorName::kThree:
+      return ia::ArmorPriority::kThird;
+    case ia::ArmorName::kFour:
+      return ia::ArmorPriority::kFourth;
+    default:
+      return ia::ArmorPriority::kFifth;
   }
 }
 
 ia::ArmorKind TypeToArmorKind(ia::Armor::Type type) {
-  return (type == ia::Armor::BIG || type == ia::Armor::GRAY_BIG_ARMOR)
-             ? ia::ArmorKind::kBig
-             : ia::ArmorKind::kSmall;
+  return (type == ia::Armor::BIG || type == ia::Armor::GRAY_BIG_ARMOR) ? ia::ArmorKind::kBig : ia::ArmorKind::kSmall;
 }
 
-void DrawText(cv::Mat& img, const std::string& text, cv::Point pos,
-              cv::Scalar color = {0, 255, 0}) {
+void DrawText(cv::Mat& img, const std::string& text, cv::Point pos, cv::Scalar color = {0, 255, 0}) {
   cv::putText(img, text, pos, cv::FONT_HERSHEY_SIMPLEX, 0.6, color, 2);
 }
 
@@ -85,89 +87,57 @@ void DrawCross(cv::Mat& img, cv::Point2f center, int size, cv::Scalar color) {
 
 /// 从YAML加载检测器参数（映射 sp_vision_25 → infantry_aimbot）
 void LoadDetectorParams(const YAML::Node& yaml, RosParams& config) {
-  if (yaml["threshold"])
-    config.detector.bin_threshold = yaml["threshold"].as<double>();
+  if (yaml["threshold"]) config.detector.bin_threshold = yaml["threshold"].as<double>();
   if (yaml["enemy_color"]) {
     std::string ec = yaml["enemy_color"].as<std::string>();
     config.detector.enemy_color = (ec == "red") ? 0 : 1;
   }
   // sp_vision_25 参数 → infantry_aimbot 参数
-  if (yaml["max_angle_error"])
-    config.detector.angle_to_vertical_max =
-        yaml["max_angle_error"].as<double>();
-  if (yaml["min_lightbar_ratio"])
-    config.detector.height_width_min_ratio =
-        yaml["min_lightbar_ratio"].as<double>();
-  if (yaml["min_armor_ratio"])
-    config.detector.width_height_min_ratio =
-        yaml["min_armor_ratio"].as<double>();
-  if (yaml["max_armor_ratio"])
-    config.detector.width_height_max_ratio =
-        yaml["max_armor_ratio"].as<double>();
-  if (yaml["max_side_ratio"])
-    config.detector.lights_length_max_ratio =
-        yaml["max_side_ratio"].as<double>();
+  if (yaml["max_angle_error"]) config.detector.angle_to_vertical_max = yaml["max_angle_error"].as<double>();
+  if (yaml["min_lightbar_ratio"]) config.detector.height_width_min_ratio = yaml["min_lightbar_ratio"].as<double>();
+  if (yaml["min_armor_ratio"]) config.detector.width_height_min_ratio = yaml["min_armor_ratio"].as<double>();
+  if (yaml["max_armor_ratio"]) config.detector.width_height_max_ratio = yaml["max_armor_ratio"].as<double>();
+  if (yaml["max_side_ratio"]) config.detector.lights_length_max_ratio = yaml["max_side_ratio"].as<double>();
 }
 
 /// 从YAML加载解算器参数
 void LoadSolverParams(const YAML::Node& yaml, RosParams& config) {
   if (yaml["camera_matrix"]) {
-    config.camera_info.camera_matrix =
-        yaml["camera_matrix"].as<std::vector<double>>();
+    config.camera_info.camera_matrix = yaml["camera_matrix"].as<std::vector<double>>();
   }
   if (yaml["distort_coeffs"]) {
-    config.camera_info.distortion_coefficients =
-        yaml["distort_coeffs"].as<std::vector<double>>();
+    config.camera_info.distortion_coefficients = yaml["distort_coeffs"].as<std::vector<double>>();
   }
   if (yaml["R_gimbal2imubody"]) {
-    config.solver.R_gimbal2imubody =
-        yaml["R_gimbal2imubody"].as<std::vector<double>>();
+    config.solver.R_gimbal2imubody = yaml["R_gimbal2imubody"].as<std::vector<double>>();
   }
   if (yaml["R_camera2gimbal"]) {
-    config.solver.R_camera2gimbal =
-        yaml["R_camera2gimbal"].as<std::vector<double>>();
+    config.solver.R_camera2gimbal = yaml["R_camera2gimbal"].as<std::vector<double>>();
   }
   if (yaml["t_camera2gimbal"]) {
-    config.solver.t_camera2gimbal =
-        yaml["t_camera2gimbal"].as<std::vector<double>>();
+    config.solver.t_camera2gimbal = yaml["t_camera2gimbal"].as<std::vector<double>>();
   }
 }
 
 /// 从YAML加载追踪/瞄准/射击参数
 void LoadBackendParams(const YAML::Node& yaml, RosParams& config) {
-  if (yaml["min_detect_count"])
-    config.tracker.min_detect_count = yaml["min_detect_count"].as<int>();
-  if (yaml["max_temp_lost_count"])
-    config.tracker.max_temp_lost_count = yaml["max_temp_lost_count"].as<int>();
+  if (yaml["min_detect_count"]) config.tracker.min_detect_count = yaml["min_detect_count"].as<int>();
+  if (yaml["max_temp_lost_count"]) config.tracker.max_temp_lost_count = yaml["max_temp_lost_count"].as<int>();
   if (yaml["outpost_max_temp_lost_count"])
-    config.tracker.outpost_max_temp_lost_count =
-        yaml["outpost_max_temp_lost_count"].as<int>();
+    config.tracker.outpost_max_temp_lost_count = yaml["outpost_max_temp_lost_count"].as<int>();
 
-  if (yaml["yaw_offset"])
-    config.aimer.yaw_offset = yaml["yaw_offset"].as<double>();
-  if (yaml["pitch_offset"])
-    config.aimer.pitch_offset = yaml["pitch_offset"].as<double>();
-  if (yaml["comming_angle"])
-    config.aimer.comming_angle = yaml["comming_angle"].as<double>();
-  if (yaml["leaving_angle"])
-    config.aimer.leaving_angle = yaml["leaving_angle"].as<double>();
-  if (yaml["decision_speed"])
-    config.aimer.decision_speed = yaml["decision_speed"].as<double>();
-  if (yaml["high_speed_delay_time"])
-    config.aimer.high_speed_delay_time =
-        yaml["high_speed_delay_time"].as<double>();
-  if (yaml["low_speed_delay_time"])
-    config.aimer.low_speed_delay_time =
-        yaml["low_speed_delay_time"].as<double>();
+  if (yaml["yaw_offset"]) config.aimer.yaw_offset = yaml["yaw_offset"].as<double>();
+  if (yaml["pitch_offset"]) config.aimer.pitch_offset = yaml["pitch_offset"].as<double>();
+  if (yaml["comming_angle"]) config.aimer.comming_angle = yaml["comming_angle"].as<double>();
+  if (yaml["leaving_angle"]) config.aimer.leaving_angle = yaml["leaving_angle"].as<double>();
+  if (yaml["decision_speed"]) config.aimer.decision_speed = yaml["decision_speed"].as<double>();
+  if (yaml["high_speed_delay_time"]) config.aimer.high_speed_delay_time = yaml["high_speed_delay_time"].as<double>();
+  if (yaml["low_speed_delay_time"]) config.aimer.low_speed_delay_time = yaml["low_speed_delay_time"].as<double>();
 
-  if (yaml["first_tolerance"])
-    config.shooter.first_tolerance = yaml["first_tolerance"].as<double>();
-  if (yaml["second_tolerance"])
-    config.shooter.second_tolerance = yaml["second_tolerance"].as<double>();
-  if (yaml["judge_distance"])
-    config.shooter.judge_distance = yaml["judge_distance"].as<double>();
-  if (yaml["auto_fire"])
-    config.shooter.auto_fire = yaml["auto_fire"].as<bool>();
+  if (yaml["first_tolerance"]) config.shooter.first_tolerance = yaml["first_tolerance"].as<double>();
+  if (yaml["second_tolerance"]) config.shooter.second_tolerance = yaml["second_tolerance"].as<double>();
+  if (yaml["judge_distance"]) config.shooter.judge_distance = yaml["judge_distance"].as<double>();
+  if (yaml["auto_fire"]) config.shooter.auto_fire = yaml["auto_fire"].as<bool>();
   // 子弹初速（sp_vision_25 从CAN获取，YAML中可选，默认27m/s）
   if (yaml["bullet_speed"])
     config.shooter.bullet_speed = yaml["bullet_speed"].as<double>();
@@ -195,8 +165,7 @@ int main(int argc, char* argv[]) {
   config.number_classifier.model_path = "";
 
   // 默认值
-  config.camera_info.camera_matrix = {1569.5, 0, 655.8, 0, 1569.9, 532.0,
-                                       0, 0, 1};
+  config.camera_info.camera_matrix = {1569.5, 0, 655.8, 0, 1569.9, 532.0, 0, 0, 1};
   config.camera_info.distortion_coefficients = {0, 0, 0, 0, 0};
   config.solver.R_gimbal2imubody = {1, 0, 0, 0, 1, 0, 0, 0, 1};
   config.solver.R_camera2gimbal = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -252,8 +221,7 @@ int main(int argc, char* argv[]) {
   std::cout << "=== 视频测试开始 ===" << std::endl;
   std::cout << "输入: " << input_path << std::endl;
   std::cout << "子弹初速: " << bullet_speed << " m/s" << std::endl;
-  std::cout << "帧范围: " << start_index << " ~ "
-            << (end_index > 0 ? end_index : -1) << std::endl;
+  std::cout << "帧范围: " << start_index << " ~ " << (end_index > 0 ? end_index : -1) << std::endl;
   std::cout << "=== 检测器参数 ===" << std::endl;
   std::cout << "  bin_threshold: " << config.detector.bin_threshold << std::endl;
   std::cout << "  enemy_color: " << (config.detector.enemy_color ? "blue" : "red") << std::endl;
@@ -266,7 +234,7 @@ int main(int argc, char* argv[]) {
 
   // 可调参数
   int bin_thresh = static_cast<int>(config.detector.bin_threshold);
-  double gamma = 1.0;  // 模拟曝光: 1.0=原图, 0.5=减半, 0.3=更低
+  double gamma = 1.0;         // 模拟曝光: 1.0=原图, 0.5=减半, 0.3=更低
   bool color_filter = false;  // B-R色差滤波: 滤白光, 只保留蓝色灯条
 
   bool show_binary = false;
@@ -294,8 +262,7 @@ int main(int argc, char* argv[]) {
 
     double t, w, x, y, z;
     text >> t >> w >> x >> y >> z;
-    auto timestamp =
-        t0 + std::chrono::microseconds(static_cast<int>(t * 1e6));
+    auto timestamp = t0 + std::chrono::microseconds(static_cast<int>(t * 1e6));
 
     /// === 诊断：生成二值图（模拟曝光调节） ===
     if (show_binary || frame_count == start_index) {
@@ -309,8 +276,7 @@ int main(int argc, char* argv[]) {
       cv::threshold(darkened, binary, bin_thresh, 255, cv::THRESH_BINARY);
 
       std::vector<std::vector<cv::Point>> contours;
-      cv::findContours(binary.clone(), contours, cv::RETR_EXTERNAL,
-                       cv::CHAIN_APPROX_NONE);
+      cv::findContours(binary.clone(), contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
       // 轮廓过多时跳过可视化防止卡死
       bool too_many = contours.size() > 5000;
@@ -321,11 +287,8 @@ int main(int argc, char* argv[]) {
         }
       }
 
-      std::snprintf(diag, sizeof(diag),
-                    "Binary thresh=%d contours=%zu valid=%d %zux%zu%s",
-                    bin_thresh, contours.size(), valid_count,
-                    img.cols, img.rows,
-                    too_many ? " TOO_MANY!" : "");
+      std::snprintf(diag, sizeof(diag), "Binary thresh=%d contours=%zu valid=%d %zux%zu%s", bin_thresh, contours.size(),
+                    valid_count, img.cols, img.rows, too_many ? " TOO_MANY!" : "");
       DrawText(img, diag, {10, img.rows - 20}, {0, 255, 255});
 
       if (show_binary) {
@@ -334,43 +297,35 @@ int main(int argc, char* argv[]) {
         if (!too_many) {
           // 绘制轮廓+分析每个轮廓的minAreaRect
           for (const auto& c : contours) {
-          double area = cv::contourArea(c);
-          if (area < 9) continue;
-          auto rrect = cv::minAreaRect(c);
-          // width/height swap: 确保 height >= width
-          float rw = rrect.size.width, rh = rrect.size.height;
-          if (rw > rh) std::swap(rw, rh);
-          double ratio = rh / rw;
-          double rect_ratio = area / (rw * rh);  // 轮廓面积/外接矩形面积
+            double area = cv::contourArea(c);
+            if (area < 9) continue;
+            auto rrect = cv::minAreaRect(c);
+            // width/height swap: 确保 height >= width
+            float rw = rrect.size.width, rh = rrect.size.height;
+            if (rw > rh) std::swap(rw, rh);
+            double ratio = rh / rw;
+            double rect_ratio = area / (rw * rh);  // 轮廓面积/外接矩形面积
 
-          // 绿色=通过IsValidLight预检, 红色=不通过
-          bool pass = (ratio >= config.detector.height_width_min_ratio);
-          cv::Scalar color = pass ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255);
+            // 绿色=通过IsValidLight预检, 红色=不通过
+            bool pass = (ratio >= config.detector.height_width_min_ratio);
+            cv::Scalar color = pass ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255);
 
-          cv::drawContours(binary_color,
-                           std::vector<std::vector<cv::Point>>{c}, -1, color,
-                           1);
-          // 画minAreaRect
-          cv::Point2f vertices[4];
-          rrect.points(vertices);
-          for (int k = 0; k < 4; k++)
-            cv::line(binary_color, vertices[k], vertices[(k + 1) % 4], color,
-                     1);
+            cv::drawContours(binary_color, std::vector<std::vector<cv::Point>>{c}, -1, color, 1);
+            // 画minAreaRect
+            cv::Point2f vertices[4];
+            rrect.points(vertices);
+            for (int k = 0; k < 4; k++) cv::line(binary_color, vertices[k], vertices[(k + 1) % 4], color, 1);
 
-          // 标注 ratio
-          char label[32];
-          std::snprintf(label, sizeof(label), "%.1f", ratio);
-          cv::putText(binary_color, label,
-                      cv::Point(static_cast<int>(rrect.center.x),
-                                static_cast<int>(rrect.center.y)),
-                      cv::FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
+            // 标注 ratio
+            char label[32];
+            std::snprintf(label, sizeof(label), "%.1f", ratio);
+            cv::putText(binary_color, label,
+                        cv::Point(static_cast<int>(rrect.center.x), static_cast<int>(rrect.center.y)),
+                        cv::FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
           }
         }  // !too_many
-        std::snprintf(diag, sizeof(diag),
-                      "Binary thresh=%d | T+/-5, []+/-10, r=ratio_min",
-                      bin_thresh);
-        cv::putText(binary_color, diag, {10, 20},
-                    cv::FONT_HERSHEY_SIMPLEX, 0.5, {255, 255, 0}, 1);
+        std::snprintf(diag, sizeof(diag), "Binary thresh=%d | T+/-5, []+/-10, r=ratio_min", bin_thresh);
+        cv::putText(binary_color, diag, {10, 20}, cv::FONT_HERSHEY_SIMPLEX, 0.5, {255, 255, 0}, 1);
         cv::resize(binary_color, binary_color, {}, 0.5, 0.5);
         cv::imshow("Binary Preview", binary_color);
       }
@@ -390,7 +345,7 @@ int main(int argc, char* argv[]) {
       std::vector<cv::Mat> bgr;
       cv::split(img, bgr);
       cv::Mat diff;
-      cv::subtract(bgr[0], bgr[2], diff);  // B - R
+      cv::subtract(bgr[0], bgr[2], diff);                    // B - R
       cv::threshold(diff, diff, 0, 255, cv::THRESH_TOZERO);  // 截断负数
       if (std::abs(gamma - 1.0) > 0.01) {
         diff.convertTo(proc_img, CV_8U, gamma, 0);
@@ -431,35 +386,28 @@ int main(int argc, char* argv[]) {
     auto finish = std::chrono::steady_clock::now();
 
     // 5. 开火判断
-    if (!targets.empty() && aimer.debug_aim_point.valid &&
-        std::abs(command.yaw - last_command.yaw) * 57.3 < 2)
+    if (!targets.empty() && aimer.debug_aim_point.valid && std::abs(command.yaw - last_command.yaw) * 57.3 < 2)
       command.shoot = true;
     if (command.control) last_command = command;
 
     /// === 调试输出 ===
 
-    double yolo_ms =
-        ia::tools::DeltaTime(tracker_start, yolo_start) * 1e3;
-    double tracker_ms =
-        ia::tools::DeltaTime(aimer_start, tracker_start) * 1e3;
+    double yolo_ms = ia::tools::DeltaTime(tracker_start, yolo_start) * 1e3;
+    double tracker_ms = ia::tools::DeltaTime(aimer_start, tracker_start) * 1e3;
     double aimer_ms = ia::tools::DeltaTime(finish, aimer_start) * 1e3;
 
-    printf("[%d] detect:%.1fms tracker:%.1fms aimer:%.1fms | cmd:%.2f,%.2f shoot:%d\n",
-           frame_count, yolo_ms, tracker_ms, aimer_ms,
-           command.yaw * 57.3, command.pitch * 57.3, command.shoot);
+    printf("[%d] detect:%.1fms tracker:%.1fms aimer:%.1fms | cmd:%.2f,%.2f shoot:%d\n", frame_count, yolo_ms,
+           tracker_ms, aimer_ms, command.yaw * 57.3, command.pitch * 57.3, command.shoot);
 
     // 状态信息叠加
     char buf[256];
-    std::snprintf(buf, sizeof(buf),
-                  "cmd: %s,%.2f,%.2f shoot:%d",
-                  command.control ? "T" : "F",
-                  command.yaw * 57.3, command.pitch * 57.3, command.shoot);
+    std::snprintf(buf, sizeof(buf), "cmd: %s,%.2f,%.2f shoot:%d", command.control ? "T" : "F", command.yaw * 57.3,
+                  command.pitch * 57.3, command.shoot);
     DrawText(img, buf, {10, 60}, {154, 50, 205});
 
     Eigen::Quaterniond gimbal_q(w, x, y, z);
     std::snprintf(buf, sizeof(buf), "gimbal yaw:%.2f",
-                  (ia::tools::Eulers(gimbal_q.toRotationMatrix(), 2, 1, 0) *
-                   57.3)[0]);
+                  (ia::tools::Eulers(gimbal_q.toRotationMatrix(), 2, 1, 0) * 57.3)[0]);
     DrawText(img, buf, {10, 90}, {255, 255, 255});
 
     // === JSON数据（兼容PlotJuggler） ===
@@ -473,8 +421,7 @@ int main(int argc, char* argv[]) {
       data["armor_yaw_raw"] = armor.yaw_raw * 57.3;
     }
 
-    data["gimbal_yaw"] =
-        ia::tools::Eulers(gimbal_q.toRotationMatrix(), 2, 1, 0)[0] * 57.3;
+    data["gimbal_yaw"] = ia::tools::Eulers(gimbal_q.toRotationMatrix(), 2, 1, 0)[0] * 57.3;
     data["cmd_yaw"] = command.yaw * 57.3;
     data["shoot"] = command.shoot;
 
@@ -485,16 +432,14 @@ int main(int argc, char* argv[]) {
 
       // 重投影所有装甲板位置
       for (const auto& xyza : armor_xyza_list) {
-        auto image_points = armor_solver.ReprojectArmor(
-            xyza.head(3), xyza[3], target.armor_kind, target.name);
+        auto image_points = armor_solver.ReprojectArmor(xyza.head(3), xyza[3], target.armor_kind, target.name);
         for (const auto& p : image_points) DrawCross(img, p, 6, {0, 255, 0});
       }
 
       // 瞄准点重投影
       if (aimer.debug_aim_point.valid) {
         auto aim_xyza = aimer.debug_aim_point.xyza;
-        auto image_points = armor_solver.ReprojectArmor(
-            aim_xyza.head(3), aim_xyza[3], target.armor_kind, target.name);
+        auto image_points = armor_solver.ReprojectArmor(aim_xyza.head(3), aim_xyza[3], target.armor_kind, target.name);
         for (const auto& p : image_points) DrawCross(img, p, 8, {0, 0, 255});
       }
 
@@ -521,18 +466,15 @@ int main(int argc, char* argv[]) {
       data["nees"] = target.Ekf().data.at("nees");
       data["nis_fail"] = target.Ekf().data.at("nis_fail");
       data["nees_fail"] = target.Ekf().data.at("nees_fail");
-      data["recent_nis_failures"] =
-          target.Ekf().data.at("recent_nis_failures");
+      data["recent_nis_failures"] = target.Ekf().data.at("recent_nis_failures");
     }
 
     // 输出JSON（每行一条，可重定向到文件供PlotJuggler读取）
     std::cout << data.dump() << std::endl;
 
     // 参数状态
-    std::snprintf(diag, sizeof(diag),
-                  "thresh=%d gamma=%.1f ratio=%.1f ang=%.0f %s speed=%dms",
-                  bin_thresh, gamma, config.detector.height_width_min_ratio,
-                  config.detector.angle_to_vertical_max,
+    std::snprintf(diag, sizeof(diag), "thresh=%d gamma=%.1f ratio=%.1f ang=%.0f %s speed=%dms", bin_thresh, gamma,
+                  config.detector.height_width_min_ratio, config.detector.angle_to_vertical_max,
                   color_filter ? "B-R" : "", frame_delay);
     DrawText(img, diag, {10, img.rows - 20}, {255, 200, 0});
 
@@ -547,10 +489,10 @@ int main(int argc, char* argv[]) {
     if (key == '.' || key == 'n') {
       if (paused) step_frame = true;
     }
-    if (key == 's') frame_delay = 100;   // 慢放
-    if (key == 'S') frame_delay = 300;   // 更慢
-    if (key == 'f') frame_delay = 10;    // 快放
-    if (key == 'F') frame_delay = 1;     // 极速
+    if (key == 's') frame_delay = 100;  // 慢放
+    if (key == 'S') frame_delay = 300;  // 更慢
+    if (key == 'f') frame_delay = 10;   // 快放
+    if (key == 'F') frame_delay = 1;    // 极速
 
     // === 检测器调参 ===
     if (key == 'b' || key == 'B') show_binary = !show_binary;
@@ -559,29 +501,21 @@ int main(int argc, char* argv[]) {
     if (key == '[') bin_thresh = std::max(10, bin_thresh - 10);
     if (key == ']') bin_thresh = std::min(255, bin_thresh + 10);
     if (key == 'r') {
-      config.detector.height_width_min_ratio =
-          std::max(1.0, config.detector.height_width_min_ratio - 0.1);
-      detection_pipeline.SetHeightWidthMinRatio(
-          config.detector.height_width_min_ratio);
+      config.detector.height_width_min_ratio = std::max(1.0, config.detector.height_width_min_ratio - 0.1);
+      detection_pipeline.SetHeightWidthMinRatio(config.detector.height_width_min_ratio);
     }
     if (key == 'R') {
-      config.detector.height_width_min_ratio =
-          std::min(5.0, config.detector.height_width_min_ratio + 0.1);
-      detection_pipeline.SetHeightWidthMinRatio(
-          config.detector.height_width_min_ratio);
+      config.detector.height_width_min_ratio = std::min(5.0, config.detector.height_width_min_ratio + 0.1);
+      detection_pipeline.SetHeightWidthMinRatio(config.detector.height_width_min_ratio);
     }
     // a/A: 调整灯条最大倾斜角
     if (key == 'a') {
-      config.detector.angle_to_vertical_max =
-          std::max(5.0, config.detector.angle_to_vertical_max - 5.0);
-      detection_pipeline.SetAngleToVerticalMax(
-          config.detector.angle_to_vertical_max);
+      config.detector.angle_to_vertical_max = std::max(5.0, config.detector.angle_to_vertical_max - 5.0);
+      detection_pipeline.SetAngleToVerticalMax(config.detector.angle_to_vertical_max);
     }
     if (key == 'A') {
-      config.detector.angle_to_vertical_max =
-          std::min(90.0, config.detector.angle_to_vertical_max + 5.0);
-      detection_pipeline.SetAngleToVerticalMax(
-          config.detector.angle_to_vertical_max);
+      config.detector.angle_to_vertical_max = std::min(90.0, config.detector.angle_to_vertical_max + 5.0);
+      detection_pipeline.SetAngleToVerticalMax(config.detector.angle_to_vertical_max);
     }
     // g/G: 模拟曝光调节 (gamma系数)
     if (key == 'g') gamma = std::max(0.1, gamma - 0.1);

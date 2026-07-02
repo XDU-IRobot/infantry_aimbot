@@ -67,9 +67,7 @@ ia::ArmorPriority ArmorNameToPriority(ia::ArmorName name) {
 }
 
 ia::ArmorKind TypeToArmorKind(ia::Armor::Type type) {
-  return (type == ia::Armor::BIG || type == ia::Armor::GRAY_BIG_ARMOR)
-             ? ia::ArmorKind::kBig
-             : ia::ArmorKind::kSmall;
+  return (type == ia::Armor::BIG || type == ia::Armor::GRAY_BIG_ARMOR) ? ia::ArmorKind::kBig : ia::ArmorKind::kSmall;
 }
 
 /// 初始化大恒相机
@@ -83,8 +81,7 @@ std::shared_ptr<camera::DahengCam> InitCamera(const RosParams& config) {
   cam->set_parameter(camera::CamParamType::AutoExposure, s.auto_exposure);
   cam->set_parameter(camera::CamParamType::Gain, s.gain);
   cam->set_parameter(camera::CamParamType::Fps, s.fps);
-  cam->set_parameter(camera::CamParamType::AutoWhiteBalance,
-                     s.auto_white_balance);
+  cam->set_parameter(camera::CamParamType::AutoWhiteBalance, s.auto_white_balance);
   cam->set_parameter(camera::CamParamType::RGain, s.rgain);
   cam->set_parameter(camera::CamParamType::GGain, s.ggain);
   cam->set_parameter(camera::CamParamType::BGain, s.bgain);
@@ -99,10 +96,8 @@ int main(int argc, char** argv) {
   auto logger = ros_node->get_logger();
 
   // ---- ROS2 发布器 ----
-  ia::ros::PublisherPool<sensor_msgs::msg::CompressedImage>
-      image_publisher_pool{ros_node};
-  ia::ros::PublisherPool<visualization_msgs::msg::MarkerArray>
-      marker_array_pub_pool{ros_node};
+  ia::ros::PublisherPool<sensor_msgs::msg::CompressedImage> image_publisher_pool{ros_node};
+  ia::ros::PublisherPool<visualization_msgs::msg::MarkerArray> marker_array_pub_pool{ros_node};
   ia::ros::ParamsManager<RosParams> ros_params_manager(ros_node);
 
   const auto& config = ros_params_manager.data();
@@ -124,16 +119,13 @@ int main(int argc, char** argv) {
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
   if (imu_enabled) {
     imu_sub = ros_node->create_subscription<sensor_msgs::msg::Imu>(
-        config.aimer.imu_topic, rclcpp::SensorDataQoS(),
-        [&](sensor_msgs::msg::Imu::SharedPtr msg) {
+        config.aimer.imu_topic, rclcpp::SensorDataQoS(), [&](sensor_msgs::msg::Imu::SharedPtr msg) {
           std::lock_guard<std::mutex> lock(imu_mutex);
           latest_imu_quaternion =
-              Eigen::Quaterniond(msg->orientation.w, msg->orientation.x,
-                                 msg->orientation.y, msg->orientation.z);
+              Eigen::Quaterniond(msg->orientation.w, msg->orientation.x, msg->orientation.y, msg->orientation.z);
           imu_received = true;
         });
-    RCLCPP_INFO(logger, "IMU enabled: topic=%s",
-                config.aimer.imu_topic.c_str());
+    RCLCPP_INFO(logger, "IMU enabled: topic=%s", config.aimer.imu_topic.c_str());
   } else {
     RCLCPP_INFO(logger, "IMU disabled (imu_topic empty) — 仅检测+可视化");
   }
@@ -158,31 +150,26 @@ int main(int argc, char** argv) {
 #ifdef HAS_HIKROBOT_CAM
     hik_cam = std::make_shared<camera::HikrobotCam>();
     cam_ok = hik_cam->open();
-    if (!cam_ok)
-      RCLCPP_FATAL(logger, "Hikrobot open failed: %s",
-                   hik_cam->error_message().c_str());
+    if (!cam_ok) RCLCPP_FATAL(logger, "Hikrobot open failed: %s", hik_cam->error_message().c_str());
 #else
     RCLCPP_FATAL(logger, "Hikrobot not supported (MVS SDK missing)");
 #endif
   } else {
     dh_cam = InitCamera(config);
     cam_ok = dh_cam->open();
-    if (!cam_ok)
-      RCLCPP_FATAL(logger, "Daheng open failed: %s",
-                   dh_cam->error_message().c_str());
+    if (!cam_ok) RCLCPP_FATAL(logger, "Daheng open failed: %s", dh_cam->error_message().c_str());
   }
 
   if (!cam_ok) {
     rclcpp::shutdown();
     return 1;
   }
-  RCLCPP_INFO(logger, "Camera opened: %dx%d @ %d fps",
-              config.camera_settings.width, config.camera_settings.height,
+  RCLCPP_INFO(logger, "Camera opened: %dx%d @ %d fps", config.camera_settings.width, config.camera_settings.height,
               config.camera_settings.fps);
 
   double bullet_speed = config.shooter.bullet_speed;
-  RCLCPP_INFO(logger, "Bullet speed: %.1f m/s, auto_fire: %s",
-              bullet_speed, config.shooter.auto_fire ? "true" : "false");
+  RCLCPP_INFO(logger, "Bullet speed: %.1f m/s, auto_fire: %s", bullet_speed,
+              config.shooter.auto_fire ? "true" : "false");
 
   // ---- 主循环 ----
   cv_bridge::CvImage frame;
@@ -193,15 +180,15 @@ int main(int argc, char** argv) {
     frame_idx++;
     bool grabbed = false;
 #ifdef HAS_HIKROBOT_CAM
-    if (hik_cam) grabbed = hik_cam->grab_image(frame.image);
+    if (hik_cam)
+      grabbed = hik_cam->grab_image(frame.image);
     else
 #endif
         if (dh_cam)
       grabbed = dh_cam->grab_image(frame.image);
 
     if (!grabbed || frame.image.empty()) {
-      RCLCPP_INFO_THROTTLE(logger, *ros_node->get_clock(), 2000,
-                           "Waiting for frame... (%d)", frame_idx);
+      RCLCPP_INFO_THROTTLE(logger, *ros_node->get_clock(), 2000, "Waiting for frame... (%d)", frame_idx);
       continue;
     }
 
@@ -211,19 +198,16 @@ int main(int argc, char** argv) {
     const auto detect_start = std::chrono::high_resolution_clock::now();
     const auto armors_result = detection_pipeline.ProcessImage(frame.image);
     const auto detect_us =
-        std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::high_resolution_clock::now() - detect_start)
+        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - detect_start)
             .count();
 
     // 只要有结果就画图+显示（不管检没检测到装甲板）
     if (config.debug) {
       if (armors_result) {
         ia::detection::DrawArmor(frame.image, *armors_result.value());
-        marker_array_pub_pool.Publish(
-            "armors", ia::detection::DrawArmorToRviz(*armors_result.value()));
+        marker_array_pub_pool.Publish("armors", ia::detection::DrawArmorToRviz(*armors_result.value()));
       }
-      image_publisher_pool.Publish("debug_image",
-                                   frame.toCompressedImageMsg());
+      image_publisher_pool.Publish("debug_image", frame.toCompressedImageMsg());
 
       static bool has_display = std::getenv("DISPLAY") != nullptr;
       if (has_display) {
@@ -234,10 +218,8 @@ int main(int argc, char** argv) {
       }
     }
 
-    RCLCPP_INFO_THROTTLE(logger, *ros_node->get_clock(), 1000,
-                         "Frame %d | detect:%ldus armors:%zu",
-                         frame_idx, detect_us,
-                         armors_result ? armors_result.value()->size() : 0);
+    RCLCPP_INFO_THROTTLE(logger, *ros_node->get_clock(), 1000, "Frame %d | detect:%ldus armors:%zu", frame_idx,
+                         detect_us, armors_result ? armors_result.value()->size() : 0);
 
     if (!armors_result) continue;
 
@@ -252,8 +234,7 @@ int main(int argc, char** argv) {
     }
 
     if (have_imu) {
-      double gimbal_yaw =
-          ia::tools::Eulers(armor_solver.RGimbal2World(), 2, 1, 0)[0];
+      double gimbal_yaw = ia::tools::Eulers(armor_solver.RGimbal2World(), 2, 1, 0)[0];
 
       // 3. 坐标变换 + 分类信息
       std::list<ia::Armor> armor_list;
@@ -269,8 +250,7 @@ int main(int argc, char** argv) {
       auto targets = tracker.Track(armor_list, timestamp);
 
       // 5. 瞄准
-      ia::Command command =
-          aimer.Aim(targets, timestamp, bullet_speed);
+      ia::Command command = aimer.Aim(targets, timestamp, bullet_speed);
 
       // 6. 开火判断
       command.shoot = aimer.Shoot(command, targets, gimbal_yaw);
@@ -278,16 +258,13 @@ int main(int argc, char** argv) {
       // ROS 日志
       if (config.debug && !targets.empty()) {
         auto ekf_x = targets.front().EkfX();
-        RCLCPP_INFO_THROTTLE(
-            logger, *ros_node->get_clock(), 1000,
-            "[%s] detect:%ldus pos=(%.2f,%.2f) omega=%.2f "
-            "cmd:(%.3f,%.3f) fire=%d",
-            tracker.State().c_str(), detect_us,
-            ekf_x[0], ekf_x[2], ekf_x[7],
-            command.yaw, command.pitch, command.shoot);
+        RCLCPP_INFO_THROTTLE(logger, *ros_node->get_clock(), 1000,
+                             "[%s] detect:%ldus pos=(%.2f,%.2f) omega=%.2f "
+                             "cmd:(%.3f,%.3f) fire=%d",
+                             tracker.State().c_str(), detect_us, ekf_x[0], ekf_x[2], ekf_x[7], command.yaw,
+                             command.pitch, command.shoot);
       }
     }
-
   }
 
 #ifdef HAS_HIKROBOT_CAM

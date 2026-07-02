@@ -7,13 +7,8 @@ namespace tools {
 
 ExtendedKalmanFilter::ExtendedKalmanFilter(
     const Eigen::VectorXd& x0, const Eigen::MatrixXd& P0,
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&,
-                                  const Eigen::VectorXd&)>
-        x_add)
-    : x(x0),
-      P(P0),
-      I_(Eigen::MatrixXd::Identity(x0.rows(), x0.rows())),
-      x_add_(x_add) {
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> x_add)
+    : x(x0), P(P0), I_(Eigen::MatrixXd::Identity(x0.rows(), x0.rows())), x_add_(x_add) {
   data["residual_yaw"] = 0.0;
   data["residual_pitch"] = 0.0;
   data["residual_distance"] = 0.0;
@@ -25,40 +20,29 @@ ExtendedKalmanFilter::ExtendedKalmanFilter(
   data["recent_nis_failures"] = 0.0;
 }
 
-Eigen::VectorXd ExtendedKalmanFilter::Predict(const Eigen::MatrixXd& F,
-                                              const Eigen::MatrixXd& Q) {
-  return Predict(F, Q,
-                 [&](const Eigen::VectorXd& x) { return F * x; });
+Eigen::VectorXd ExtendedKalmanFilter::Predict(const Eigen::MatrixXd& F, const Eigen::MatrixXd& Q) {
+  return Predict(F, Q, [&](const Eigen::VectorXd& x) { return F * x; });
 }
 
-Eigen::VectorXd ExtendedKalmanFilter::Predict(
-    const Eigen::MatrixXd& F, const Eigen::MatrixXd& Q,
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> f) {
+Eigen::VectorXd ExtendedKalmanFilter::Predict(const Eigen::MatrixXd& F, const Eigen::MatrixXd& Q,
+                                              std::function<Eigen::VectorXd(const Eigen::VectorXd&)> f) {
   P = F * P * F.transpose() + Q;
   x = f(x);
   return x;
 }
 
 Eigen::VectorXd ExtendedKalmanFilter::Update(
-    const Eigen::VectorXd& z, const Eigen::MatrixXd& H,
-    const Eigen::MatrixXd& R,
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&,
-                                  const Eigen::VectorXd&)>
-        z_subtract) {
-  return Update(z, H, R,
-                [&](const Eigen::VectorXd& x) { return H * x; }, z_subtract);
+    const Eigen::VectorXd& z, const Eigen::MatrixXd& H, const Eigen::MatrixXd& R,
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> z_subtract) {
+  return Update(z, H, R, [&](const Eigen::VectorXd& x) { return H * x; }, z_subtract);
 }
 
 Eigen::VectorXd ExtendedKalmanFilter::Update(
-    const Eigen::VectorXd& z, const Eigen::MatrixXd& H,
-    const Eigen::MatrixXd& R,
+    const Eigen::VectorXd& z, const Eigen::MatrixXd& H, const Eigen::MatrixXd& R,
     std::function<Eigen::VectorXd(const Eigen::VectorXd&)> h,
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&,
-                                  const Eigen::VectorXd&)>
-        z_subtract) {
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> z_subtract) {
   Eigen::VectorXd x_prior = x;
-  Eigen::MatrixXd K =
-      P * H.transpose() * (H * P * H.transpose() + R).inverse();
+  Eigen::MatrixXd K = P * H.transpose() * (H * P * H.transpose() + R).inverse();
 
   // Stable Computation of the Posterior Covariance
   // https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python/blob/master/07-Kalman-Filter-Math.ipynb
@@ -70,8 +54,7 @@ Eigen::VectorXd ExtendedKalmanFilter::Update(
   Eigen::VectorXd residual = z_subtract(z, h(x));
   Eigen::MatrixXd S = H * P * H.transpose() + R;
   double nis = residual.transpose() * S.inverse() * residual;
-  double nees =
-      (x - x_prior).transpose() * P.inverse() * (x - x_prior);
+  double nees = (x - x_prior).transpose() * P.inverse() * (x - x_prior);
 
   // 卡方检验阈值（自由度=4，取置信水平95%）
   constexpr double kNisThreshold = 0.711;
@@ -88,10 +71,8 @@ Eigen::VectorXd ExtendedKalmanFilter::Update(
     recent_nis_failures.pop_front();
   }
 
-  int recent_failures =
-      std::accumulate(recent_nis_failures.begin(), recent_nis_failures.end(), 0);
-  double recent_rate =
-      static_cast<double>(recent_failures) / recent_nis_failures.size();
+  int recent_failures = std::accumulate(recent_nis_failures.begin(), recent_nis_failures.end(), 0);
+  double recent_rate = static_cast<double>(recent_failures) / recent_nis_failures.size();
 
   data["residual_yaw"] = residual[0];
   data["residual_pitch"] = residual[1];

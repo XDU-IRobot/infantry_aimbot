@@ -31,8 +31,8 @@ class Target {
   Target() = default;
 
   /// 从检测初始化
-  Target(const Armor& armor, std::chrono::steady_clock::time_point t,
-         double radius, int armor_num, const Eigen::VectorXd& P0_diag);
+  Target(const Armor& armor, std::chrono::steady_clock::time_point t, double radius, int armor_num,
+         const Eigen::VectorXd& P0_diag);
 
   void Predict(std::chrono::steady_clock::time_point t);
   void Predict(double dt);

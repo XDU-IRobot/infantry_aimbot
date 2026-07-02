@@ -284,16 +284,10 @@ void TraditionalDetector::SetEnemyColor(Color enemy_color) {
   enemy_color_ = enemy_color;
 }
 
-void TraditionalDetector::SetBinThreshold(double threshold) {
-  process_params_.bin_threshold = threshold;
-}
+void TraditionalDetector::SetBinThreshold(double threshold) { process_params_.bin_threshold = threshold; }
 
-void TraditionalDetector::SetHeightWidthMinRatio(double ratio) {
-  light_params_.height_width_min_ratio = ratio;
-}
+void TraditionalDetector::SetHeightWidthMinRatio(double ratio) { light_params_.height_width_min_ratio = ratio; }
 
-void TraditionalDetector::SetAngleToVerticalMax(double angle) {
-  light_params_.angle_to_vertigal_max = angle;
-}
+void TraditionalDetector::SetAngleToVerticalMax(double angle) { light_params_.angle_to_vertigal_max = angle; }
 }  // namespace detection
 }  // namespace ia

@@ -21,8 +21,7 @@ class Tracker {
   std::string State() const;
 
   /// @brief 主追踪入口：过滤→排序→状态机→发散/收敛检测→返回目标列表
-  std::list<Target> Track(std::list<Armor>& armors,
-                          std::chrono::steady_clock::time_point t);
+  std::list<Target> Track(std::list<Armor>& armors, std::chrono::steady_clock::time_point t);
 
  private:
   detection::ArmorSolver& solver_;
@@ -37,10 +36,8 @@ class Tracker {
   std::chrono::steady_clock::time_point last_timestamp_;
 
   void StateMachine(bool found);
-  bool SetTarget(std::list<Armor>& armors,
-                 std::chrono::steady_clock::time_point t);
-  bool UpdateTarget(std::list<Armor>& armors,
-                    std::chrono::steady_clock::time_point t);
+  bool SetTarget(std::list<Armor>& armors, std::chrono::steady_clock::time_point t);
+  bool UpdateTarget(std::list<Armor>& armors, std::chrono::steady_clock::time_point t);
 };
 
 }  // namespace estimation

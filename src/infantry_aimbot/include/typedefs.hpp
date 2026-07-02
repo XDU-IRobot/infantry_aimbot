@@ -11,29 +11,13 @@
 namespace ia {
 
 // 装甲板名称（由数字分类器结果映射）
-enum class ArmorName : int {
-  kOne = 0,
-  kTwo,
-  kThree,
-  kFour,
-  kFive,
-  kSentry,
-  kOutpost,
-  kBase,
-  kNotArmor
-};
+enum class ArmorName : int { kOne = 0, kTwo, kThree, kFour, kFive, kSentry, kOutpost, kBase, kNotArmor };
 
 // 装甲板类型（与现有的 Armor::Type 互补，用于后端模块）
 enum class ArmorKind { kSmall, kBig };
 
 // 装甲板优先级（数字越小优先级越高）
-enum class ArmorPriority : int {
-  kFirst = 1,
-  kSecond,
-  kThird,
-  kFourth,
-  kFifth
-};
+enum class ArmorPriority : int { kFirst = 1, kSecond, kThird, kFourth, kFifth };
 
 // 云台控制指令
 struct Command {
@@ -145,8 +129,8 @@ struct Armor {
   Eigen::Vector3d ypr_in_world{Eigen::Vector3d::Zero()};   // 世界坐标系下的欧拉角 (rad)
   Eigen::Vector3d ypd_in_world{Eigen::Vector3d::Zero()};   // 球坐标系 (yaw, pitch, distance)
   double yaw_raw{0.0};                                     // yaw优化前的原始值 (rad)
-  ArmorName name{ArmorName::kNotArmor};                     // 装甲板名称
-  ArmorKind kind{ArmorKind::kSmall};                         // 装甲板类型
-  ArmorPriority priority{ArmorPriority::kFifth};            // 优先级
+  ArmorName name{ArmorName::kNotArmor};                    // 装甲板名称
+  ArmorKind kind{ArmorKind::kSmall};                       // 装甲板类型
+  ArmorPriority priority{ArmorPriority::kFifth};           // 优先级
 };
 }  // namespace ia

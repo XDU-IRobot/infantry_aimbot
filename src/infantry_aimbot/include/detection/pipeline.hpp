@@ -33,12 +33,10 @@ class DetectionPipeline {
                    config.detector.lights_y_max_ratio, config.detector.width_height_min_ratio,
                    config.detector.width_height_max_ratio, config.detector.max_angle, config.detector.inside_thresh}},
         big_armor_pnp_solver_{
-            {
-                cv::Point3f{-kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},
-                cv::Point3f{kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},
-                cv::Point3f{kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f},
-                cv::Point3f{-kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f}
-            },
+            {cv::Point3f{-kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},
+             cv::Point3f{kBigArmorWidth / 2, -kBigArmorHeight / 2, 0.f},
+             cv::Point3f{kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f},
+             cv::Point3f{-kBigArmorWidth / 2, kBigArmorHeight / 2, 0.f}},
             (cv::Mat_<double>(3, 3) << config.camera_info.camera_matrix[0], config.camera_info.camera_matrix[1],
              config.camera_info.camera_matrix[2], config.camera_info.camera_matrix[3],
              config.camera_info.camera_matrix[4], config.camera_info.camera_matrix[5],
@@ -48,12 +46,10 @@ class DetectionPipeline {
              config.camera_info.distortion_coefficients[1], config.camera_info.distortion_coefficients[2],
              config.camera_info.distortion_coefficients[3], config.camera_info.distortion_coefficients[4])},
         small_armor_pnp_solver_{
-            {
-                cv::Point3f{-kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},
-                cv::Point3f{kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},
-                cv::Point3f{kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f},
-                cv::Point3f{-kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f}
-            },
+            {cv::Point3f{-kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},
+             cv::Point3f{kSmallArmorWidth / 2, -kSmallArmorHeight / 2, 0.f},
+             cv::Point3f{kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f},
+             cv::Point3f{-kSmallArmorWidth / 2, kSmallArmorHeight / 2, 0.f}},
             (cv::Mat_<double>(3, 3) << config.camera_info.camera_matrix[0], config.camera_info.camera_matrix[1],
              config.camera_info.camera_matrix[2], config.camera_info.camera_matrix[3],
              config.camera_info.camera_matrix[4], config.camera_info.camera_matrix[5],

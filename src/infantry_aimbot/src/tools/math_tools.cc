@@ -11,15 +11,13 @@ double LimitRad(double angle) {
   return angle;
 }
 
-Eigen::Vector3d Eulers(Eigen::Quaterniond q, int axis0, int axis1, int axis2,
-                       bool extrinsic) {
+Eigen::Vector3d Eulers(Eigen::Quaterniond q, int axis0, int axis1, int axis2, bool extrinsic) {
   if (extrinsic) q = q.inverse();
   Eigen::Matrix3d R = q.toRotationMatrix();
   return Eulers(R, axis0, axis1, axis2, extrinsic);
 }
 
-Eigen::Vector3d Eulers(Eigen::Matrix3d R, int axis0, int axis1, int axis2,
-                       bool /*extrinsic*/) {
+Eigen::Vector3d Eulers(Eigen::Matrix3d R, int axis0, int axis1, int axis2, bool /*extrinsic*/) {
   constexpr double kEpsilon = 1e-6;
   Eigen::Vector3d euler;
   int i = axis0;
@@ -126,8 +124,7 @@ Eigen::MatrixXd Ypd2XyzJacobian(const Eigen::Vector3d& ypd) {
   return J;
 }
 
-double DeltaTime(const std::chrono::steady_clock::time_point& a,
-                 const std::chrono::steady_clock::time_point& b) {
+double DeltaTime(const std::chrono::steady_clock::time_point& a, const std::chrono::steady_clock::time_point& b) {
   return std::chrono::duration<double>(a - b).count();
 }
 

@@ -13,13 +13,11 @@ double LimitRad(double angle);
 /// x = 0, y = 1, z = 2
 /// e.g. 先绕z轴旋转，再绕y轴旋转，最后绕x轴旋转：axis0=2, axis1=1, axis2=0
 /// 参考：https://github.com/evbernardes/quaternion_to_euler
-Eigen::Vector3d Eulers(Eigen::Quaterniond q, int axis0, int axis1, int axis2,
-                       bool extrinsic = false);
+Eigen::Vector3d Eulers(Eigen::Quaterniond q, int axis0, int axis1, int axis2, bool extrinsic = false);
 
 /// 旋转矩阵转欧拉角
 /// x = 0, y = 1, z = 2
-Eigen::Vector3d Eulers(Eigen::Matrix3d R, int axis0, int axis1, int axis2,
-                       bool extrinsic = false);
+Eigen::Vector3d Eulers(Eigen::Matrix3d R, int axis0, int axis1, int axis2, bool extrinsic = false);
 
 /// 欧拉角转旋转矩阵 (zyx:先绕z轴旋转，再绕y轴旋转，最后绕x轴旋转)
 Eigen::Matrix3d RotationMatrix(const Eigen::Vector3d& ypr);
@@ -37,8 +35,7 @@ Eigen::Vector3d Ypd2Xyz(const Eigen::Vector3d& ypd);
 Eigen::MatrixXd Ypd2XyzJacobian(const Eigen::Vector3d& ypd);
 
 /// 计算时间差 a - b，单位：s
-double DeltaTime(const std::chrono::steady_clock::time_point& a,
-                 const std::chrono::steady_clock::time_point& b);
+double DeltaTime(const std::chrono::steady_clock::time_point& a, const std::chrono::steady_clock::time_point& b);
 
 /// 向量夹角，总是返回 0 ~ π
 double GetAbsAngle(const Eigen::Vector2d& vec1, const Eigen::Vector2d& vec2);

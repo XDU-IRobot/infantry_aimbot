@@ -7,8 +7,8 @@
 namespace ia {
 namespace estimation {
 
-Target::Target(const Armor& armor, std::chrono::steady_clock::time_point t,
-               double radius, int armor_num, const Eigen::VectorXd& P0_diag)
+Target::Target(const Armor& armor, std::chrono::steady_clock::time_point t, double radius, int armor_num,
+               const Eigen::VectorXd& P0_diag)
     : name(armor.name),
       armor_kind(armor.kind),
       jumped(false),
@@ -28,13 +28,11 @@ Target::Target(const Armor& armor, std::chrono::steady_clock::time_point t,
   double center_z = xyz[2];
 
   // x vx y vy z vz a w r l h
-  Eigen::VectorXd x0{{center_x, 0, center_y, 0, center_z, 0, ypr[0], 0,
-                      radius, 0, 0}};
+  Eigen::VectorXd x0{{center_x, 0, center_y, 0, center_z, 0, ypr[0], 0, radius, 0, 0}};
   Eigen::MatrixXd P0 = P0_diag.asDiagonal();
 
   // 防止夹角求和出现异常值
-  auto x_add = [](const Eigen::VectorXd& a,
-                  const Eigen::VectorXd& b) -> Eigen::VectorXd {
+  auto x_add = [](const Eigen::VectorXd& a, const Eigen::VectorXd& b) -> Eigen::VectorXd {
     Eigen::VectorXd c = a + b;
     c[6] = tools::LimitRad(c[6]);
     return c;
@@ -102,8 +100,7 @@ void Target::Predict(double dt) {
   };
 
   // 前哨站转速特判
-  if (Convergened() && name == ArmorName::kOutpost &&
-      std::abs(ekf_.x[7]) > 2) {
+  if (Convergened() && name == ArmorName::kOutpost && std::abs(ekf_.x[7]) > 2) {
     ekf_.x[7] = ekf_.x[7] > 0 ? 2.51 : -2.51;
   }
 
@@ -122,8 +119,7 @@ void Target::Update(const Armor& armor) {
   }
 
   std::sort(xyza_i_list.begin(), xyza_i_list.end(),
-            [](const std::pair<Eigen::Vector4d, int>& a,
-               const std::pair<Eigen::Vector4d, int>& b) {
+            [](const std::pair<Eigen::Vector4d, int>& a, const std::pair<Eigen::Vector4d, int>& b) {
               Eigen::Vector3d ypd1 = tools::Xyz2Ypd(a.first.head(3));
               Eigen::Vector3d ypd2 = tools::Xyz2Ypd(b.first.head(3));
               return ypd1[2] < ypd2[2];
@@ -133,9 +129,8 @@ void Target::Update(const Armor& armor) {
   for (int i = 0; i < std::min(3, armor_num_); i++) {
     const auto& xyza = xyza_i_list[i].first;
     Eigen::Vector3d ypd = tools::Xyz2Ypd(xyza.head(3));
-    double angle_error =
-        std::abs(tools::LimitRad(armor.ypr_in_world[0] - xyza[3])) +
-        std::abs(tools::LimitRad(armor.ypd_in_world[0] - ypd[0]));
+    double angle_error = std::abs(tools::LimitRad(armor.ypr_in_world[0] - xyza[3])) +
+                         std::abs(tools::LimitRad(armor.ypd_in_world[0] - ypd[0]));
 
     if (std::abs(angle_error) < std::abs(min_angle_error)) {
       id = xyza_i_list[i].second;
@@ -155,24 +150,20 @@ void Target::UpdateYpda(const Armor& armor, int id) {
   Eigen::MatrixXd H = HJacobian(ekf_.x, id);
 
   double center_yaw = std::atan2(armor.xyz_in_world[1], armor.xyz_in_world[0]);
-  double delta_angle =
-      tools::LimitRad(armor.ypr_in_world[0] - center_yaw);
-  Eigen::VectorXd R_dig{
-      {4e-3, 4e-3, std::log(std::abs(delta_angle) + 1) + 1,
-       std::log(std::abs(armor.ypd_in_world[2]) + 1) / 200 + 9e-2}};
+  double delta_angle = tools::LimitRad(armor.ypr_in_world[0] - center_yaw);
+  Eigen::VectorXd R_dig{{4e-3, 4e-3, std::log(std::abs(delta_angle) + 1) + 1,
+                         std::log(std::abs(armor.ypd_in_world[2]) + 1) / 200 + 9e-2}};
 
   Eigen::MatrixXd R = R_dig.asDiagonal();
 
   auto h = [&](const Eigen::VectorXd& x) -> Eigen::Vector4d {
     Eigen::VectorXd xyz = HArmorXyz(x, id);
     Eigen::VectorXd ypd = tools::Xyz2Ypd(xyz);
-    double angle =
-        tools::LimitRad(x[6] + id * 2 * CV_PI / armor_num_);
+    double angle = tools::LimitRad(x[6] + id * 2 * CV_PI / armor_num_);
     return {ypd[0], ypd[1], ypd[2], angle};
   };
 
-  auto z_subtract = [](const Eigen::VectorXd& a,
-                       const Eigen::VectorXd& b) -> Eigen::VectorXd {
+  auto z_subtract = [](const Eigen::VectorXd& a, const Eigen::VectorXd& b) -> Eigen::VectorXd {
     Eigen::VectorXd c = a - b;
     c[0] = tools::LimitRad(c[0]);
     c[1] = tools::LimitRad(c[1]);
@@ -194,8 +185,7 @@ const tools::ExtendedKalmanFilter& Target::Ekf() const { return ekf_; }
 std::vector<Eigen::Vector4d> Target::ArmorXyzaList() const {
   std::vector<Eigen::Vector4d> result;
   for (int i = 0; i < armor_num_; i++) {
-    double angle =
-        tools::LimitRad(ekf_.x[6] + i * 2 * CV_PI / armor_num_);
+    double angle = tools::LimitRad(ekf_.x[6] + i * 2 * CV_PI / armor_num_);
     Eigen::Vector3d xyz = HArmorXyz(ekf_.x, i);
     result.push_back({xyz[0], xyz[1], xyz[2], angle});
   }
@@ -204,8 +194,7 @@ std::vector<Eigen::Vector4d> Target::ArmorXyzaList() const {
 
 bool Target::Diverged() const {
   bool r_ok = ekf_.x[8] > 0.05 && ekf_.x[8] < 0.5;
-  bool l_ok =
-      ekf_.x[8] + ekf_.x[9] > 0.05 && ekf_.x[8] + ekf_.x[9] < 0.5;
+  bool l_ok = ekf_.x[8] + ekf_.x[9] > 0.05 && ekf_.x[8] + ekf_.x[9] < 0.5;
   return !(r_ok && l_ok);
 }
 
@@ -220,8 +209,7 @@ bool Target::Convergened() {
 }
 
 Eigen::Vector3d Target::HArmorXyz(const Eigen::VectorXd& x, int id) const {
-  double angle =
-      tools::LimitRad(x[6] + id * 2 * CV_PI / armor_num_);
+  double angle = tools::LimitRad(x[6] + id * 2 * CV_PI / armor_num_);
   bool use_l_h = (armor_num_ == 4) && (id == 1 || id == 3);
 
   double r = use_l_h ? x[8] + x[9] : x[8];
@@ -233,8 +221,7 @@ Eigen::Vector3d Target::HArmorXyz(const Eigen::VectorXd& x, int id) const {
 }
 
 Eigen::MatrixXd Target::HJacobian(const Eigen::VectorXd& x, int id) const {
-  double angle =
-      tools::LimitRad(x[6] + id * 2 * CV_PI / armor_num_);
+  double angle = tools::LimitRad(x[6] + id * 2 * CV_PI / armor_num_);
   bool use_l_h = (armor_num_ == 4) && (id == 1 || id == 3);
 
   double r = use_l_h ? x[8] + x[9] : x[8];

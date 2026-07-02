@@ -31,9 +31,8 @@ class ArmorSolver {
   void Solve(Armor& armor) const;
 
   /// @brief 根据世界坐标和yaw重投影装甲板顶点
-  std::vector<cv::Point2f> ReprojectArmor(const Eigen::Vector3d& xyz_in_world,
-                                           double yaw, ArmorKind kind,
-                                           ArmorName name) const;
+  std::vector<cv::Point2f> ReprojectArmor(const Eigen::Vector3d& xyz_in_world, double yaw, ArmorKind kind,
+                                          ArmorName name) const;
 
  private:
   cv::Mat camera_matrix_;

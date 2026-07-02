@@ -23,14 +23,11 @@ class Aimer {
   AimPoint debug_aim_point;
 
   /// @brief 瞄准主入口：预测→选点→迭代弹道→输出指令
-  Command Aim(const std::list<estimation::Target>& targets,
-              std::chrono::steady_clock::time_point timestamp,
+  Command Aim(const std::list<estimation::Target>& targets, std::chrono::steady_clock::time_point timestamp,
               double bullet_speed, bool to_now = true);
 
   /// @brief 开火决策
-  bool Shoot(const Command& command,
-             const std::list<estimation::Target>& targets,
-             double gimbal_yaw);
+  bool Shoot(const Command& command, const std::list<estimation::Target>& targets, double gimbal_yaw);
 
  private:
   double yaw_offset_;

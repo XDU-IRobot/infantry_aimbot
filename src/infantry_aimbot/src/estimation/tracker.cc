@@ -8,8 +8,7 @@ namespace ia {
 namespace estimation {
 
 Tracker::Tracker(const RosParams& config, detection::ArmorSolver& solver)
-    : solver_{solver},
-      last_timestamp_(std::chrono::steady_clock::now()) {
+    : solver_{solver}, last_timestamp_(std::chrono::steady_clock::now()) {
   enemy_color_ = config.detector.enemy_color == 0 ? Color::RED : Color::BLUE;
   min_detect_count_ = config.tracker.min_detect_count;
   max_temp_lost_count_ = config.tracker.max_temp_lost_count;
@@ -18,8 +17,7 @@ Tracker::Tracker(const RosParams& config, detection::ArmorSolver& solver)
 
 std::string Tracker::State() const { return state_; }
 
-std::list<Target> Tracker::Track(std::list<Armor>& armors,
-                                  std::chrono::steady_clock::time_point t) {
+std::list<Target> Tracker::Track(std::list<Armor>& armors, std::chrono::steady_clock::time_point t) {
   double dt = tools::DeltaTime(t, last_timestamp_);
   last_timestamp_ = t;
 
@@ -29,8 +27,7 @@ std::list<Target> Tracker::Track(std::list<Armor>& armors,
   }
 
   // 过滤非敌方装甲板
-  armors.remove_if(
-      [&](const Armor& a) { return a.left_light.color != enemy_color_; });
+  armors.remove_if([&](const Armor& a) { return a.left_light.color != enemy_color_; });
 
   // 按图像中心距离排序
   armors.sort([](const Armor& a, const Armor& b) {
@@ -40,9 +37,8 @@ std::list<Target> Tracker::Track(std::list<Armor>& armors,
   });
 
   // 按优先级排序（数字越小优先级越高）
-  armors.sort([](const Armor& a, const Armor& b) {
-    return static_cast<int>(a.priority) < static_cast<int>(b.priority);
-  });
+  armors.sort(
+      [](const Armor& a, const Armor& b) { return static_cast<int>(a.priority) < static_cast<int>(b.priority); });
 
   bool found;
   if (state_ == "lost") {
@@ -62,8 +58,7 @@ std::list<Target> Tracker::Track(std::list<Armor>& armors,
   // NIS收敛检测
   if (state_ != "lost" && !target_.Ekf().recent_nis_failures.empty()) {
     int failures =
-        std::accumulate(target_.Ekf().recent_nis_failures.begin(),
-                        target_.Ekf().recent_nis_failures.end(), 0);
+        std::accumulate(target_.Ekf().recent_nis_failures.begin(), target_.Ekf().recent_nis_failures.end(), 0);
     if (failures >= static_cast<int>(0.4 * target_.Ekf().window_size)) {
       state_ = "lost";
       return {};
@@ -96,26 +91,22 @@ void Tracker::StateMachine(bool found) {
       state_ = "tracking";
     } else {
       temp_lost_count_++;
-      int max_count = (target_.name == ArmorName::kOutpost)
-                          ? outpost_max_temp_lost_count_
-                          : max_temp_lost_count_;
+      int max_count = (target_.name == ArmorName::kOutpost) ? outpost_max_temp_lost_count_ : max_temp_lost_count_;
       if (temp_lost_count_ > max_count) state_ = "lost";
     }
   }
 }
 
-bool Tracker::SetTarget(std::list<Armor>& armors,
-                         std::chrono::steady_clock::time_point t) {
+bool Tracker::SetTarget(std::list<Armor>& armors, std::chrono::steady_clock::time_point t) {
   if (armors.empty()) return false;
 
   auto& armor = armors.front();
   solver_.Solve(armor);
 
   // 根据兵种优化初始化参数
-  bool is_balance = (armor.kind == ArmorKind::kBig) &&
-                    (armor.name == ArmorName::kThree ||
-                     armor.name == ArmorName::kFour ||
-                     armor.name == ArmorName::kFive);
+  bool is_balance =
+      (armor.kind == ArmorKind::kBig) &&
+      (armor.name == ArmorName::kThree || armor.name == ArmorName::kFour || armor.name == ArmorName::kFive);
 
   if (is_balance) {
     Eigen::VectorXd P0_diag{{1, 64, 1, 64, 1, 64, 0.4, 100, 1, 1, 1}};
@@ -134,22 +125,19 @@ bool Tracker::SetTarget(std::list<Armor>& armors,
   return true;
 }
 
-bool Tracker::UpdateTarget(std::list<Armor>& armors,
-                            std::chrono::steady_clock::time_point t) {
+bool Tracker::UpdateTarget(std::list<Armor>& armors, std::chrono::steady_clock::time_point t) {
   target_.Predict(t);
 
   int found_count = 0;
   for (const auto& armor : armors) {
-    if (armor.name != target_.name || armor.kind != target_.armor_kind)
-      continue;
+    if (armor.name != target_.name || armor.kind != target_.armor_kind) continue;
     found_count++;
   }
 
   if (found_count == 0) return false;
 
   for (auto& armor : armors) {
-    if (armor.name != target_.name || armor.kind != target_.armor_kind)
-      continue;
+    if (armor.name != target_.name || armor.kind != target_.armor_kind) continue;
 
     solver_.Solve(armor);
     target_.Update(armor);

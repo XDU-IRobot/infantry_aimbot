@@ -8,8 +8,7 @@
 namespace ia {
 namespace decision {
 
-Aimer::Aimer(const RosParams& config)
-    : lock_id_{-1}, last_command_{false, false, 0, 0} {
+Aimer::Aimer(const RosParams& config) : lock_id_{-1}, last_command_{false, false, 0, 0} {
   yaw_offset_ = config.aimer.yaw_offset / 57.3;
   pitch_offset_ = config.aimer.pitch_offset / 57.3;
   comming_angle_ = config.aimer.comming_angle / 57.3;
@@ -23,24 +22,19 @@ Aimer::Aimer(const RosParams& config)
   auto_fire_ = config.shooter.auto_fire;
 }
 
-Command Aimer::Aim(const std::list<estimation::Target>& targets,
-                    std::chrono::steady_clock::time_point timestamp,
-                    double bullet_speed, bool to_now) {
+Command Aimer::Aim(const std::list<estimation::Target>& targets, std::chrono::steady_clock::time_point timestamp,
+                   double bullet_speed, bool to_now) {
   if (targets.empty()) return {false, false, 0, 0};
 
   auto target = targets.front();
 
-  double delay_time = std::abs(target.EkfX()[7]) > decision_speed_
-                          ? high_speed_delay_time_
-                          : low_speed_delay_time_;
+  double delay_time = std::abs(target.EkfX()[7]) > decision_speed_ ? high_speed_delay_time_ : low_speed_delay_time_;
 
   if (bullet_speed < 14) bullet_speed = 23;
 
   auto future = timestamp;
   if (to_now) {
-    double dt =
-        tools::DeltaTime(std::chrono::steady_clock::now(), timestamp) +
-        delay_time;
+    double dt = tools::DeltaTime(std::chrono::steady_clock::now(), timestamp) + delay_time;
     future += std::chrono::microseconds(static_cast<int>(dt * 1e6));
     target.Predict(future);
   } else {
@@ -70,9 +64,7 @@ Command Aimer::Aim(const std::list<estimation::Target>& targets,
   std::vector<estimation::Target> iteration_target(10, target);
 
   for (int iter = 0; iter < 10; ++iter) {
-    auto predict_time =
-        future +
-        std::chrono::microseconds(static_cast<int>(prev_fly_time * 1e6));
+    auto predict_time = future + std::chrono::microseconds(static_cast<int>(prev_fly_time * 1e6));
     iteration_target[iter].Predict(predict_time);
 
     auto aim_point = ChooseAimPoint(iteration_target[iter]);
@@ -119,14 +111,12 @@ AimPoint Aimer::ChooseAimPoint(const estimation::Target& target) {
 
   std::vector<double> delta_angle_list;
   for (int i = 0; i < armor_num; i++) {
-    double delta_angle =
-        tools::LimitRad(armor_xyza_list[i][3] - center_yaw);
+    double delta_angle = tools::LimitRad(armor_xyza_list[i][3] - center_yaw);
     delta_angle_list.emplace_back(delta_angle);
   }
 
   // 不考虑小陀螺：在可射击范围内选择装甲板
-  if (std::abs(target.EkfX()[8]) <= 2 &&
-      target.name != ArmorName::kOutpost) {
+  if (std::abs(target.EkfX()[8]) <= 2 && target.name != ArmorName::kOutpost) {
     std::vector<int> id_list;
     for (int i = 0; i < armor_num; i++) {
       if (std::abs(delta_angle_list[i]) > 60 / 57.3) continue;
@@ -139,10 +129,7 @@ AimPoint Aimer::ChooseAimPoint(const estimation::Target& target) {
     if (id_list.size() > 1) {
       int id0 = id_list[0], id1 = id_list[1];
       if (lock_id_ != id0 && lock_id_ != id1)
-        lock_id_ = (std::abs(delta_angle_list[id0]) <
-                    std::abs(delta_angle_list[id1]))
-                       ? id0
-                       : id1;
+        lock_id_ = (std::abs(delta_angle_list[id0]) < std::abs(delta_angle_list[id1])) ? id0 : id1;
       return {true, armor_xyza_list[static_cast<int>(lock_id_)]};
     }
 
@@ -162,31 +149,23 @@ AimPoint Aimer::ChooseAimPoint(const estimation::Target& target) {
 
   for (int i = 0; i < armor_num; i++) {
     if (std::abs(delta_angle_list[i]) > coming_angle) continue;
-    if (ekf_x[7] > 0 && delta_angle_list[i] < leaving_angle)
-      return {true, armor_xyza_list[i]};
-    if (ekf_x[7] < 0 && delta_angle_list[i] > -leaving_angle)
-      return {true, armor_xyza_list[i]};
+    if (ekf_x[7] > 0 && delta_angle_list[i] < leaving_angle) return {true, armor_xyza_list[i]};
+    if (ekf_x[7] < 0 && delta_angle_list[i] > -leaving_angle) return {true, armor_xyza_list[i]};
   }
 
   return {false, armor_xyza_list[0]};
 }
 
-bool Aimer::Shoot(const Command& command,
-                   const std::list<estimation::Target>& targets,
-                   double gimbal_yaw) {
+bool Aimer::Shoot(const Command& command, const std::list<estimation::Target>& targets, double gimbal_yaw) {
   if (!command.control || targets.empty() || !auto_fire_) return false;
 
   double target_x = targets.front().EkfX()[0];
   double target_y = targets.front().EkfX()[2];
-  double tolerance =
-      std::sqrt(tools::Square(target_x) + tools::Square(target_y)) >
-              judge_distance_
-          ? second_tolerance_
-          : first_tolerance_;
+  double tolerance = std::sqrt(tools::Square(target_x) + tools::Square(target_y)) > judge_distance_ ? second_tolerance_
+                                                                                                    : first_tolerance_;
 
   if (std::abs(last_command_.yaw - command.yaw) < tolerance * 2 &&
-      std::abs(gimbal_yaw - last_command_.yaw) < tolerance &&
-      debug_aim_point.valid) {
+      std::abs(gimbal_yaw - last_command_.yaw) < tolerance && debug_aim_point.valid) {
     last_command_ = command;
     return true;
   }
